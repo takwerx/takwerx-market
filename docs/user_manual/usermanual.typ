@@ -2,7 +2,7 @@
 #import "formatting.typ": *
 
 #show: userguide.with(
-   plugin-name: "TAKWERX Market",
+   plugin-name: "TAKwerx Market",
    plugin-version: "0.1",
    platform: "ATAK",
    platform-version: "5.8.0",
@@ -11,7 +11,7 @@
 #tak-slide[
 = Overview
 
-TAKWERX Market lists every takwerx ATAK plugin, shows which of them run on the
+TAKwerx Market lists every takwerx ATAK plugin, shows which of them run on the
 ATAK you are holding, and installs them without leaving ATAK. Sideload this one
 plugin and you can get the rest from inside the app.
 
@@ -103,14 +103,15 @@ you before Android shows its own less helpful message.
 #tak-slide[
 = Settings
 
-Settings #sym.arrow.r Tool Preferences #sym.arrow.r TAKWERX Market.
-
-*Market catalog URL* is where the plugin list comes from. Leave it empty to use
-the takwerx catalog, which is what almost everyone wants. It is shown rather
-than hidden because ATAK can import preferences from a data package, so this is
-worth being able to check.
+Settings #sym.arrow.r Tool Preferences #sym.arrow.r TAKwerx Market.
 
 *Plugin Documentation* opens this guide.
+
+There is deliberately nothing else there. The market reads one list, the TAKwerx
+one, and that cannot be changed from the device. ATAK can import preferences
+from a data package, so a setting for it would be a way to point the market
+somewhere else without you doing anything — and what the market offers you is
+exactly the thing worth being sure about.
 
 == Getting help
 

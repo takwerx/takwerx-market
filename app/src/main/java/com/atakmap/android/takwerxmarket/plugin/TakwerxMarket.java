@@ -43,7 +43,19 @@ public class TakwerxMarket implements IPlugin {
      */
     private static final String DEFAULT_BASE_URL = "https://mapdepot.takwerx.org/depot";
 
-    /** Override for testing against a staging tree, read from ATAK's preferences. */
+    /**
+     * Staging override, DEBUG BUILDS ONLY.
+     *
+     * A release build reads DEFAULT_BASE_URL and nothing else. This is not a
+     * setting anyone should be able to change: ATAK can import preferences from a
+     * data package, so a value here need not be one the operator typed, and the
+     * market's whole job is to hand the operator something to install. Repointing
+     * it at another catalog is the most valuable thing an attacker could do to
+     * this plugin — and it is also, separately, not a thing takwerx wants offered.
+     *
+     * Signer pinning still stands behind this: even a repointed debug build can
+     * only install a TAK Product Center-signed APK.
+     */
     private static final String PREF_BASE_URL = "takwerxmarket_url";
 
     IServiceController serviceController;
@@ -137,14 +149,19 @@ public class TakwerxMarket implements IPlugin {
     }
 
     private String baseUrl() {
+        if (!BuildConfig.DEBUG)
+            return DEFAULT_BASE_URL;
+
         Context host = hostContext();
         if (host == null)
             return DEFAULT_BASE_URL;
         try {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(host);
             String url = prefs.getString(PREF_BASE_URL, null);
-            if (url != null && url.trim().length() > 0)
+            if (url != null && url.trim().length() > 0) {
+                Log.w(TAG, "DEBUG build: reading a non-default catalog");
                 return url.trim();
+            }
         } catch (Exception e) {
             Log.d(TAG, "no base URL override set");
         }

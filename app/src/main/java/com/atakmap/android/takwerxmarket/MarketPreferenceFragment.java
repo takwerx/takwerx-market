@@ -32,7 +32,7 @@ public class MarketPreferenceFragment extends PluginPreferenceFragment {
     private static final String USER_GUIDE = "usermanual.pdf";
     private static final String EXTRACTED = FileSystemUtils.getRoot()
             + File.separator + "tools" + File.separator + "takwerxmarket"
-            + File.separator + "TAKWERX Market User Guide.pdf";
+            + File.separator + "TAKwerx Market User Guide.pdf";
 
     /** Remembers which release's manual was last written to EXTRACTED. */
     private static final String PREF_MANUAL_VERSION = "takwerxmarket_manual_version";
@@ -51,7 +51,7 @@ public class MarketPreferenceFragment extends PluginPreferenceFragment {
 
     @Override
     public String getSubTitle() {
-        return getSubTitle("Tool Preferences", "TAKWERX Market");
+        return getSubTitle("Tool Preferences", "TAKwerx Market");
     }
 
     @Override

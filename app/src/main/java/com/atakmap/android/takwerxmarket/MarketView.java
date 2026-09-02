@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -29,6 +32,10 @@ import java.util.List;
 public class MarketView implements MarketAdapter.ActionListener {
 
     private static final String TAG = "TakwerxMarket.View";
+
+    /** Match MarketAdapter's colours; the header and the rows are one idea. */
+    private static final int AMBER = 0xFFFFB300;
+    private static final int GREEN = 0xFF8BC34A;
 
     private final Context pluginContext;
     private final Context hostContext;
@@ -128,7 +135,11 @@ public class MarketView implements MarketAdapter.ActionListener {
                 try {
                     fetched = MarketCatalog.fetch(baseUrl, pluginApi);
                     MarketCatalog.resolveInstalled(hostContext, fetched);
+                    resolveLoaded(fetched);
                     MarketCatalog.sortForDisplay(fetched, pluginApi);
+                    // Still on the background thread: the icons are a network
+                    // fetch on first run and must not touch the main one.
+                    IconCache.warm(hostContext, baseUrl, fetched);
                 } catch (Exception e) {
                     Log.w(TAG, "catalog fetch failed: " + e.getMessage(), e);
                     error = e.getMessage();
@@ -166,7 +177,10 @@ public class MarketView implements MarketAdapter.ActionListener {
         int offered = 0;
         int updates = 0;
         int otherAtak = 0;
+        int installed = 0;
         for (MarketEntry e : entries) {
+            if (e.installed)
+                installed++;
             switch (e.status(pluginApi)) {
                 case UPDATE_AVAILABLE:
                     updates++;
@@ -183,18 +197,29 @@ public class MarketView implements MarketAdapter.ActionListener {
 
         String atak = pluginApi == null ? "this ATAK"
                 : "ATAK " + pluginApi.substring(pluginApi.indexOf('@') + 1);
-        StringBuilder sb = new StringBuilder();
-        sb.append(offered).append(offered == 1 ? " plugin for " : " plugins for ").append(atak);
-        if (updates > 0)
-            sb.append(" · ").append(updates).append(updates == 1 ? " update" : " updates");
-        statusView.setText(sb.toString());
-
-        // A tappable row nobody knows is tappable is not a feature.
-        int installed = 0;
-        for (MarketEntry e : entries) {
-            if (e.installed)
-                installed++;
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        sb.append(String.valueOf(offered))
+                .append(offered == 1 ? " plugin for " : " plugins for ").append(atak);
+        if (updates > 0) {
+            // Amber, the same colour the rows use for a pending update, so the
+            // count and the rows it refers to read as one thing.
+            int at = sb.length();
+            sb.append("  ·  ").append(String.valueOf(updates))
+                    .append(updates == 1 ? " update" : " updates");
+            sb.setSpan(new ForegroundColorSpan(AMBER), at, sb.length(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        } else if (installed > 0) {
+            // Only claim this when something is actually installed. With four
+            // plugins offered and none installed there are zero updates, but
+            // nothing is up to date either, and saying so would be a lie told in
+            // green — the one colour an operator will not stop to question.
+            int at = sb.length();
+            sb.append("  ·  ").append(installed == offered
+                    ? "all up to date" : "nothing to update");
+            sb.setSpan(new ForegroundColorSpan(GREEN), at, sb.length(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
+        statusView.setText(sb);
 
         if (otherAtak > 0) {
             footnote.setText(otherAtak + (otherAtak == 1
@@ -227,16 +252,47 @@ public class MarketView implements MarketAdapter.ActionListener {
                     public void run() {
                         busy = false;
                         refresh.setEnabled(true);
-                        if (!r.ok) {
+                        if (r.ok) {
+                            paintSummary();
+                        } else if (r.signerConflict) {
+                            offerUninstall(entry, r.message);
+                        } else {
                             statusView.setText(r.message);
                             Toast.makeText(hostContext, r.message, Toast.LENGTH_LONG).show();
-                        } else {
-                            paintSummary();
                         }
                     }
                 });
             }
         }, "takwerx-market-install").start();
+    }
+
+    /**
+     * A signing-key clash is the one install failure the operator can clear, so
+     * offer to clear it instead of telling them to go and do it somewhere else.
+     *
+     * Removing it is all that is offered: once Android is done the package
+     * watcher flips the row to Install on its own, so the next step is in front
+     * of them. Chaining an automatic reinstall would mean holding an intention
+     * across two Android confirmations and a process boundary, which is more
+     * ways to get it wrong than it saves taps.
+     */
+    private void offerUninstall(final MarketEntry entry, String why) {
+        // Short here, detail in the dialog. The status line shares a row with the
+        // Refresh button, so a full sentence wraps and clips — which is how this
+        // read before the dialog existed: an explanation nobody could finish.
+        statusView.setText(entry.label + " was not updated");
+        new AlertDialog.Builder(hostContext)
+                .setTitle(entry.label)
+                .setMessage(why + "\n\nRemove the installed copy now? You can then"
+                        + " install " + entry.label + " from the market.")
+                .setPositiveButton("Uninstall", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int w) {
+                        PluginControl.uninstall(hostContext, entry.packageName);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     /**
@@ -272,6 +328,9 @@ public class MarketView implements MarketAdapter.ActionListener {
                             if (PluginControl.setLoaded(entry.packageName, want)) {
                                 statusView.setText(entry.label
                                         + (want ? " loaded into ATAK" : " unloaded from ATAK"));
+                                // The badge is the whole point of the change, so
+                                // reflect it now rather than at the next refresh.
+                                refreshInstalledState();
                             } else {
                                 Toast.makeText(hostContext,
                                         "ATAK would not " + (want ? "load " : "unload ")
@@ -289,11 +348,24 @@ public class MarketView implements MarketAdapter.ActionListener {
                 .show();
     }
 
+    /**
+     * Ask ATAK which of these it currently has loaded.
+     *
+     * Done here rather than in MarketCatalog so the catalog layer depends on
+     * nothing but Android, and done once per refresh rather than per getView:
+     * the adapter is called repeatedly while scrolling.
+     */
+    private void resolveLoaded(List<MarketEntry> list) {
+        for (MarketEntry e : list)
+            e.loaded = e.installed ? PluginControl.isLoaded(e.packageName) : null;
+    }
+
     /** Re-read what is installed, without going back to the network. */
     public void refreshInstalledState() {
         if (entries.isEmpty())
             return;
         MarketCatalog.resolveInstalled(hostContext, entries);
+        resolveLoaded(entries);
         MarketCatalog.sortForDisplay(entries, pluginApi);
         adapter.setEntries(entries);
         paintSummary();

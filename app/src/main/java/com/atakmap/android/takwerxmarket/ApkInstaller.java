@@ -57,9 +57,22 @@ public final class ApkInstaller {
         public final boolean ok;
         public final String message;
 
+        /**
+         * True when the only thing standing in the way is that the installed
+         * build carries a different signing key. That is the one failure the
+         * operator can clear themselves, so the caller offers to do it rather
+         * than printing an instruction.
+         */
+        public final boolean signerConflict;
+
         Result(boolean ok, String message) {
+            this(ok, message, false);
+        }
+
+        Result(boolean ok, String message, boolean signerConflict) {
             this.ok = ok;
             this.message = message;
+            this.signerConflict = signerConflict;
         }
     }
 
@@ -122,9 +135,8 @@ public final class ApkInstaller {
                     apkSigners)) {
                 delete(apk);
                 return new Result(false, entry.label + " on this device was signed"
-                        + " with a different key than the market's build, so Android"
-                        + " will not replace it. Uninstall " + entry.label
-                        + " first, then install it from here.");
+                        + " with a different key than the market's build, so"
+                        + " Android will not replace it.", true);
             }
 
             launchInstaller(hostContext, apk);

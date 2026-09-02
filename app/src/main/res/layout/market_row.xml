@@ -7,6 +7,15 @@
     android:paddingTop="8dp"
     android:paddingBottom="8dp">
 
+    <ImageView
+        android:id="@+id/row_icon"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:scaleType="fitCenter"
+        android:contentDescription="@string/app_name" />
+
     <LinearLayout
         android:layout_width="0dp"
         android:layout_weight="1"

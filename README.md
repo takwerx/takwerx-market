@@ -1,35 +1,155 @@
-Takwerx Depot
-
+ATAK Plugin — TAKwerx Market
 
 _________________________________________________________________
 PURPOSE AND CAPABILITIES
 
-(General Description)
+A plugin catalog inside ATAK. It lists the TAKwerx ATAK plugins, shows which of
+them run on the ATAK build the device is actually running, and installs and
+updates them without leaving the app. An operator sideloads one plugin and gets
+the rest from inside ATAK, instead of being handed several APKs to sideload by
+hand and being told which one matches their ATAK version.
 
+Capabilities:
+
+  - Reads a catalog over HTTPS in ATAK's own product.inf format, so the same
+    hosted tree is also readable by ATAK's built-in Update Server setting.
+  - Offers only what matches the running ATAK. A plugin built for a different
+    ATAK release is listed and greyed with the release it was built for, rather
+    than hidden, so the list never silently omits things.
+  - Per plugin: install, update, load, unload and uninstall, the same set of
+    actions ATAK's own package manager offers.
+  - Shows whether an installed plugin is currently loaded into ATAK, which is
+    otherwise not visible from the map.
+  - One quiet notice at ATAK start when something installed is out of date, and
+    nothing at all when everything is current.
+  - Verifies every download against a SHA-256 published in the catalog, and
+    refuses to install anything not signed by a TAK Product Center
+    plugin-release certificate.
+
+The catalog hosts no APKs. Each entry links to that plugin's own signed release,
+so the plugin a user installs is the same file published by its own project, and
+this plugin distributes nothing.
 
 _________________________________________________________________
 STATUS
 
-(In Progress?  Expected release?  Released?  To Who?  When?)
+Version 0.1. First submission.
+
+Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
+Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
+detection, install to completion, load, unload, uninstall, signer pinning and
+the user manual opening from Tool Preferences have all been exercised on the
+device, in both debug and release (proguard) builds.
+
+Not yet verified on official tak.gov-signed ATAK, which is what this submission
+is for: a locally built plugin cannot load on official ATAK and a tak.gov-signed
+one cannot load on the SDK's development ATAK, so that check requires the signed
+artifact this submission produces.
 
 _________________________________________________________________
 POINT OF CONTACTS
 
-(Who is developing this)
+Andreas Johansson, takwerx
+https://github.com/takwerx/takwerx-market/issues
 
 _________________________________________________________________
 PORTS REQUIRED
 
 (This is important for ATO, networking, and other security concerns)
 
+  Outbound TCP 443 (HTTPS) only.
+
+  The plugin makes three kinds of request, all HTTPS and all to the catalog host
+  or to the plugin release it links to:
+
+    - the catalog itself, on ATAK start and when the operator opens or refreshes
+      the pane
+    - a plugin icon, once per ATAK session per listed plugin
+    - a plugin APK, only when the operator taps Install or Update
+
+  Plain HTTP is refused at the connection, not merely avoided: a non-HTTPS URL
+  is rejected before any request is made, and redirects cannot downgrade the
+  transport.
+
+  No inbound ports. No listening sockets. No traffic to or from the TAK server.
+  No CoT is generated or consumed. Nothing is sent anywhere -- the plugin only
+  fetches, and transmits no device, user or position data of any kind.
+
+  With no network the plugin lists nothing and says so; it does not block ATAK
+  start or any other function.
+
 _________________________________________________________________
 EQUIPMENT REQUIRED
+
+  Android device supported by ATAK-CIV 5.6, 5.7 or 5.8.
+  A network connection when browsing or installing. Downloads are the size of
+  the plugin being installed, typically 2 to 7 MB.
 
 _________________________________________________________________
 EQUIPMENT SUPPORTED
 
+  Any Android device supported by ATAK. No additional or external hardware, no
+  sensors, no peripherals.
+
 _________________________________________________________________
 COMPILATION
 
+  Standard ATAK plugin build. Set sdk.path in local.properties to an unpacked
+  ATAK CIV SDK, then:
+
+      ./gradlew assembleCivDebug
+      ./gradlew assembleCivRelease
+
+  ext.ATAK_VERSION in app/build.gradle selects the ATAK release to target.
+
+  The user manual is compiled from docs/user_manual/ by gradle/typst.gradle when
+  ATAK_CI=1, or locally with -PbuildManual. It lands at
+  app/src/main/assets/usermanual.pdf, which is build output and is not committed
+  or submitted.
+
 _________________________________________________________________
 DEVELOPER NOTES
+
+  Almost nothing here depends on ATAK internals, deliberately. Official ATAK is
+  obfuscated and the SDK ships an empty mapping.txt, so what survives a release
+  cannot be checked before submitting. The catalog fetch, the parse, the
+  installed-version lookup and the install itself use only Android APIs. The
+  three places that do reach into ATAK -- loading and unloading a plugin, the
+  Tool Preferences entry, and the PDF helper -- are each guarded so that losing
+  one costs that feature and not the plugin.
+
+  Update detection cannot use versionCode. tak.gov builds from a source zip with
+  no .git, so getVersionCode() falls through to 1 on every signed release;
+  measured against four published plugins, all report revision 1. Comparing
+  revisions would report zero updates forever while appearing to work. Versions
+  are therefore compared by name, numerically per dotted component.
+
+  For the same reason the plugin manages its own manual. PdfHelper.extractAndShow
+  decides whether to re-extract by comparing versionCode, so with every release
+  reporting 1 the first manual a user opens is the one they keep. The plugin
+  compares the version name itself and removes the stale file first.
+
+  A downloaded APK is staged in ATAK's internal storage, never external. Under
+  Android/data any app holding WRITE_EXTERNAL_STORAGE can write on API 29 and
+  below, and PackageInstaller re-reads the file when the operator confirms, so
+  external staging would mean the bytes installed need not be the bytes that
+  were verified. It is written to a subdirectory of the path ATAK's own
+  FileProvider declares, because the startup sweep empties what it is pointed at
+  and ATAK keeps its own plugin APKs in that directory.
+
+  The SHA-256 check only proves the bytes match the catalog, which is worth
+  nothing if the catalog is not trustworthy. Signer pinning is what establishes
+  that a binary came from tak.gov's pipeline, and it is deliberately not
+  conditioned on the catalog's own "type" column -- a check a document can
+  switch off is not a check.
+
+  Icon URLs carry a hash of the icon's own bytes. The catalog sits behind a CDN,
+  and an icon changed at an unchanged URL was served stale by some edges and not
+  others, so devices that looked during that window cached the wrong image
+  indefinitely. A URL that changes with its content cannot go stale at any layer.
+
+  ATAK already ships a mechanism for this in com.atakmap.android.update, and it
+  is worth knowing why this plugin exists alongside it. That mechanism is driven
+  by a single Update Server URL, so an organisation already pointing ATAK at
+  their own repository would have to give it up. This plugin adds a catalog
+  rather than replacing one, and needs no configuration.

@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- The catalog this plugin reads. Visible on purpose: ATAK can import
-         preferences from a data package, so this value is not necessarily one the
-         operator set. A setting nobody can see is a setting nobody can check. -->
-    <com.atakmap.android.gui.PanEditTextPreference
-        android:key="takwerxmarket_url"
-        android:title="Market catalog URL"
-        android:summary="Where the plugin list comes from. Leave empty for the takwerx catalog."
-        android:inputType="textUri"
-        android:singleLine="true" />
+    <!-- There is deliberately no catalog-URL setting. A release build reads the
+         takwerx catalog and nothing else: ATAK can import preferences from a data
+         package, so an editable URL here would be a way to point the market at
+         someone else's list without the operator doing anything. Debug builds
+         still honour takwerxmarket_url; see TakwerxMarket.baseUrl(). -->
 
     <com.atakmap.android.gui.PanPreference
         android:key="manual"

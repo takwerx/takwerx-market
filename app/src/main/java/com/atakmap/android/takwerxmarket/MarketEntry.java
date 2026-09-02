@@ -36,6 +36,14 @@ public class MarketEntry {
     public final long size;
 
     public boolean installed;
+
+    /**
+     * Whether ATAK currently has this plugin loaded. TRUE, FALSE, or null when
+     * ATAK's registry could not be reached — null is "do not claim", not "no".
+     * Set by the view rather than the catalog, so the catalog layer stays free
+     * of ATAK internals.
+     */
+    public Boolean loaded;
     /** Kept for the record; not used to detect updates. See {@link PluginVersion}. */
     public int installedRevision = -1;
     public String installedVersion;

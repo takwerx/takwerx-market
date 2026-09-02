@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App -->
-    <string name="app_name">Takwerx Market</string>
+    <string name="app_name">TAKwerx Market</string>
     <!-- description -->
-    <string name="app_desc">Browse and install takwerx ATAK plugins</string>
+    <string name="app_desc">Browse and install TAKwerx ATAK plugins</string>
 
     <string name="market_heading">Takwerx plugins</string>
     <string name="market_refresh">Refresh</string>

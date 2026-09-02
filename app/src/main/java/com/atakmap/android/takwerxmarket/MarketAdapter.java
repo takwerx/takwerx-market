@@ -1,9 +1,13 @@
 package com.atakmap.android.takwerxmarket;
 
 import android.content.Context;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -26,6 +30,25 @@ public class MarketAdapter extends BaseAdapter {
     private static final int GREEN = 0xFF8BC34A;
     private static final int AMBER = 0xFFFFB300;
     private static final int GREY = 0xFF9E9E9E;
+
+    /**
+     * Installed is not the same as running. ATAK can hold a plugin installed but
+     * unloaded, and from the map there is no way to tell the two apart — so the
+     * row says which. Green for loaded, yellow for unloaded, and the word is
+     * spelled out so the row does not depend on colour alone: an update row is
+     * already amber for a different reason.
+     */
+    private static CharSequence withLoadState(CharSequence base, Boolean loaded) {
+        if (loaded == null)
+            return base;                       // registry unreachable; claim nothing
+        String tag = loaded ? "  \u00b7  LOADED" : "  \u00b7  UNLOADED";
+        SpannableStringBuilder sb = new SpannableStringBuilder(base);
+        int at = sb.length();
+        sb.append(tag);
+        sb.setSpan(new ForegroundColorSpan(loaded ? GREEN : AMBER),
+                at, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return sb;
+    }
 
     private final Context pluginContext;
     private final String pluginApi;
@@ -68,10 +91,22 @@ public class MarketAdapter extends BaseAdapter {
 
         final MarketEntry e = getItem(position);
 
+        ImageView icon = row.findViewById(R.id.row_icon);
         TextView label = row.findViewById(R.id.row_label);
         TextView status = row.findViewById(R.id.row_status);
         TextView desc = row.findViewById(R.id.row_desc);
         Button action = row.findViewById(R.id.row_action);
+
+        // Rows are recycled, so an entry without an icon must clear the one the
+        // previous occupant left behind rather than inherit it.
+        android.graphics.Bitmap bmp = IconCache.get(e.packageName);
+        if (bmp != null) {
+            icon.setImageBitmap(bmp);
+            icon.setVisibility(View.VISIBLE);
+        } else {
+            icon.setImageDrawable(null);
+            icon.setVisibility(View.INVISIBLE);
+        }
 
         label.setText(e.label);
         if (e.description == null || e.description.length() == 0) {
@@ -84,7 +119,9 @@ public class MarketAdapter extends BaseAdapter {
         MarketEntry.Status s = e.status(pluginApi);
         switch (s) {
             case UPDATE_AVAILABLE:
-                status.setText(PluginVersion.number(e.installedVersion) + "  →  " + PluginVersion.number(e.version));
+                status.setText(withLoadState(
+                        PluginVersion.number(e.installedVersion) + "  →  "
+                                + PluginVersion.number(e.version), e.loaded));
                 status.setTextColor(AMBER);
                 action.setText(R.string.market_update);
                 action.setEnabled(true);
@@ -100,8 +137,9 @@ public class MarketAdapter extends BaseAdapter {
                 break;
 
             case INSTALLED:
-                status.setText(pluginContext.getString(R.string.market_installed)
-                        + " " + PluginVersion.number(e.installedVersion));
+                status.setText(withLoadState(
+                        pluginContext.getString(R.string.market_installed) + " "
+                                + PluginVersion.number(e.installedVersion), e.loaded));
                 status.setTextColor(GREEN);
                 action.setVisibility(View.INVISIBLE);
                 action.setEnabled(false);
