@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- The catalog this plugin reads. Visible on purpose: ATAK can import
+         preferences from a data package, so this value is not necessarily one the
+         operator set. A setting nobody can see is a setting nobody can check. -->
+    <com.atakmap.android.gui.PanEditTextPreference
+        android:key="takwerxmarket_url"
+        android:title="Market catalog URL"
+        android:summary="Where the plugin list comes from. Leave empty for the takwerx catalog."
+        android:inputType="textUri"
+        android:singleLine="true" />
+
+    <com.atakmap.android.gui.PanPreference
+        android:key="manual"
+        android:title="Plugin Documentation"
+        android:summary="Open the TAKWERX Market user guide" />
+
+</PreferenceScreen>

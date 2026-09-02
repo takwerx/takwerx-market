@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">Takwerx Market</string>
+    <!-- description -->
+    <string name="app_desc">Browse and install takwerx ATAK plugins</string>
+
+    <string name="market_heading">Takwerx plugins</string>
+    <string name="market_refresh">Refresh</string>
+    <string name="market_loading">Checking for plugins…</string>
+    <string name="market_install">Install</string>
+    <string name="market_update">Update</string>
+    <string name="market_installed">Installed</string>
+    <string name="market_unavailable">Not for this ATAK</string>
+</resources>
