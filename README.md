@@ -33,7 +33,7 @@ this plugin distributes nothing.
 _________________________________________________________________
 STATUS
 
-Version 0.1. First submission.
+Version 0.2. Second submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -41,10 +41,15 @@ detection, install to completion, load, unload, uninstall, signer pinning and
 the user manual opening from Tool Preferences have all been exercised on the
 device, in both debug and release (proguard) builds.
 
-Not yet verified on official tak.gov-signed ATAK, which is what this submission
-is for: a locally built plugin cannot load on official ATAK and a tak.gov-signed
-one cannot load on the SDK's development ATAK, so that check requires the signed
-artifact this submission produces.
+0.1 was verified on official ATAK: Samsung Galaxy S22 Ultra, Android 14,
+ATAK-CIV 5.7.0.5. The signature verified, the plugin loaded, and a plugin was
+updated from the catalog end to end -- downloaded, hash checked, signer checked,
+installed over the existing copy and loaded by ATAK without a restart.
+
+0.2 fixes what that session exposed: the loaded/unloaded indicator went stale
+after an update, because loading a plugin raises no broadcast to observe and
+ATAK's own post-update prompt is exactly the path that triggers it. Download
+progress also moved onto the row it belongs to.
 
 _________________________________________________________________
 POINT OF CONTACTS
