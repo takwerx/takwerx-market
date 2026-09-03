@@ -449,6 +449,20 @@ public class MarketView implements MarketAdapter.ActionListener {
             return;
         pendingAtakApk = null;
         installing = hostContext.getPackageName();
+
+        // ATAK decides what to load at start from "shouldLoad-<package>", and
+        // it set ours to false a moment ago when it unloaded us for the replace
+        // (AtakPluginRegistry.unloadPlugin). Left like that, the new ATAK comes
+        // up with the new market installed and not loaded, and the operator has
+        // to find it in TAK Package Mgmt -- measured on the S22, 2026-09-03.
+        // Set it back so the new build loads on the first start of the new ATAK.
+        try {
+            PreferenceManager.getDefaultSharedPreferences(hostContext).edit()
+                    .putBoolean("shouldLoad-" + pluginContext.getPackageName(), true)
+                    .apply();
+        } catch (Exception e) {
+            Log.d(TAG, "could not mark the new market to load at start: " + e.getMessage());
+        }
         try {
             ApkInstaller.handToInstaller(hostContext, atak);
             Log.d(TAG, "ATAK handed to the installer");
