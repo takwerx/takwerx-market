@@ -67,6 +67,18 @@ public class MarketView implements MarketAdapter.ActionListener {
     /** Package handed to Android and not yet reported back on. */
     private String installing;
 
+    /** Rows queued behind the one in progress; "Update all" fills it. */
+    private final java.util.ArrayDeque<MarketEntry> queue = new java.util.ArrayDeque<>();
+
+    /**
+     * ATAK's own verified APK, held while the market's build for the NEW ATAK
+     * lands first. Handed to Android the moment that package-added arrives.
+     */
+    private java.io.File pendingAtakApk;
+    /** The plugin-api of the ATAK that file is; the market's build for it must land first. */
+    private String pendingTargetApi;
+    private Button updateAll;
+
     /**
      * Loading a plugin raises no broadcast, so there was nothing to notice when
      * ATAK loaded something after an install — the row kept saying UNLOADED
@@ -127,8 +139,15 @@ public class MarketView implements MarketAdapter.ActionListener {
             root.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (pkg != null && pkg.equals(installing))
+                    if (pkg != null && pkg.equals(installing)) {
+                        if (pendingAtakApk != null
+                                && Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())
+                                && pkg.equals(pluginContext.getPackageName())) {
+                            handAtakOver();
+                            return;
+                        }
                         clearInstalling();
+                    }
                     refreshInstalledState();
                 }
             });
@@ -141,6 +160,224 @@ public class MarketView implements MarketAdapter.ActionListener {
     private void clearInstalling() {
         installing = null;
         adapter.setDownloading(null, 0);
+        startNext();
+    }
+
+    private void startNext() {
+        if (busy || queue.isEmpty())
+            return;
+        onInstall(queue.poll());
+    }
+
+    /**
+     * Queue every pending update except ATAK's and run them one after another,
+     * each through the same three screens as a single update. ATAK's own row is
+     * deliberately not part of this: it restarts the process, and it has its own
+     * warning.
+     */
+    private void updateAllPending() {
+        if (busy)
+            return;
+        queue.clear();
+        for (MarketEntry e : entries) {
+            if (!e.isAtak() && e.status(pluginApi) == MarketEntry.Status.UPDATE_AVAILABLE)
+                queue.add(e);
+        }
+        startNext();
+    }
+
+    /** Repaint only when the whole percent moves; progress arrives far more often. */
+    private MarketHttp.Progress progressFor(final MarketEntry entry) {
+        return new MarketHttp.Progress() {
+            private int lastPercent = -2;
+
+            @Override
+            public void onProgress(long bytesRead, long total) {
+                final int pct = total > 0
+                        ? (int) Math.min(100, bytesRead * 100 / total)
+                        : -1;
+                if (pct == lastPercent)
+                    return;
+                lastPercent = pct;
+                root.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.setDownloading(entry.packageName, pct);
+                    }
+                });
+            }
+        };
+    }
+
+    /**
+     * Updating ATAK itself is a two-step handoff, and the order is the whole
+     * design. First the market's OWN build for the new ATAK goes on (Android
+     * replaces the file; this code keeps running from the old one), then ATAK.
+     * ATAK restarts on the new version, the new market loads, and every plugin
+     * built for the old ATAK shows up as an update. Done the other way round
+     * there is no market on the new ATAK to finish the job.
+     *
+     * Both files are downloaded and verified before either is handed over, so
+     * the two Android prompts come back to back with nothing in between.
+     */
+    private void confirmAtakUpgrade(final MarketEntry atak) {
+        if (busy)
+            return;
+        final String newApi = AtakTarget.apiFor(pluginApi, atak.version);
+        final String to = MarketEntry.atakOf(newApi);
+        int plugins = 0;
+        for (MarketEntry e : entries)
+            if (e.installed && e.isPlugin())
+                plugins++;
+        String mb = atak.size > 0 ? " (" + (atak.size / (1024 * 1024)) + " MB)" : "";
+        new AlertDialog.Builder(hostContext)
+                .setTitle("Update ATAK to " + PluginVersion.number(atak.version) + "?")
+                .setMessage("The market will download ATAK" + mb + ", then install its own"
+                        + " build for ATAK " + to + ", then hand ATAK to Android."
+                        + " ATAK restarts on the new version; open the market again and it"
+                        + " will offer " + to + " builds of your " + plugins
+                        + (plugins == 1 ? " plugin." : " plugins.")
+                        + "\n\nAnswer Android's prompts as they come. If ATAK asks to load"
+                        + " TAKwerx Market in between, tap Cancel; it loads after the restart."
+                        + " Do not cancel the ATAK install once it starts.")
+                .setPositiveButton("Update ATAK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int w) {
+                        upgradeAtak(atak, newApi);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void upgradeAtak(final MarketEntry atak, final String claimedApi) {
+        if (busy)
+            return;
+        if (!Signers.isAtakPackage(hostContext, atak.packageName)) {
+            // Only the package this code runs inside is ATAK. A row that merely
+            // starts with ATAK's name is not, whatever its type column says.
+            statusView.setText("Refusing to treat " + atak.packageName + " as ATAK.");
+            return;
+        }
+        if (!Signers.hostIsTakSigned(hostContext)) {
+            String why = "The ATAK on this device was not installed from tak.gov (it carries"
+                    + " a different signing key), so it cannot be updated from here.";
+            statusView.setText(why);
+            Toast.makeText(hostContext, why, Toast.LENGTH_LONG).show();
+            return;
+        }
+        busy = true;
+        refresh.setEnabled(false);
+        queue.clear();
+        adapter.setDownloading(atak.packageName, 0);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String fail = null;
+                java.io.File atakApk = null;
+                java.io.File marketApk = null;
+                MarketEntry marketNew = null;
+                String newApi = claimedApi;
+                try {
+                    ApkInstaller.Fetched a = ApkInstaller.fetchAndVerify(
+                            hostContext, baseUrl, atak, progressFor(atak));
+                    if (a.apk == null) {
+                        fail = a.result.message;
+                    } else {
+                        atakApk = a.apk;
+                        // Which ATAK is actually in hand decides which market
+                        // build goes on first -- read from the file, not the row.
+                        newApi = AtakTarget.apiFor(pluginApi, a.versionName);
+                        // The market's own build for the ATAK about to be
+                        // installed. Not there yet? Then ATAK is not updated
+                        // either: a phone with no market on it is the one
+                        // outcome this must never produce.
+                        String me = pluginContext.getPackageName();
+                        for (MarketEntry e : MarketCatalog.fetchExact(baseUrl, newApi)) {
+                            if (me.equals(e.packageName) && e.isCompatibleWith(newApi))
+                                marketNew = e;
+                        }
+                        if (marketNew == null) {
+                            fail = "No TAKwerx Market build for ATAK " + MarketEntry.atakOf(newApi)
+                                    + " is published yet, so ATAK was not updated.";
+                        } else {
+                            MarketCatalog.resolveInstalled(hostContext,
+                                    java.util.Collections.singletonList(marketNew));
+                            final String fetching = "Fetching TAKwerx Market for ATAK "
+                                    + MarketEntry.atakOf(newApi) + "\u2026";
+                            root.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    statusView.setText(fetching);
+                                }
+                            });
+                            ApkInstaller.Fetched m = ApkInstaller.fetchAndVerify(
+                                    hostContext, baseUrl, marketNew, progressFor(atak));
+                            if (m.apk == null)
+                                fail = m.result.message;
+                            else
+                                marketApk = m.apk;
+                        }
+                    }
+                } catch (Exception e) {
+                    fail = "ATAK update did not start: " + e.getMessage();
+                }
+
+                final String failMsg = fail;
+                final java.io.File atakFile = atakApk;
+                final java.io.File marketFile = marketApk;
+                final MarketEntry marketEntry = marketNew;
+                final String targetApi = newApi;
+                root.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        busy = false;
+                        refresh.setEnabled(true);
+                        if (failMsg != null) {
+                            if (atakFile != null)
+                                ApkInstaller.discard(atakFile);
+                            adapter.setDownloading(null, 0);
+                            statusView.setText(failMsg);
+                            Toast.makeText(hostContext, failMsg, Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        // Step one: the market's own new build. Step two runs
+                        // from the package watcher when Android reports it in.
+                        pendingAtakApk = atakFile;
+                        pendingTargetApi = targetApi;
+                        installing = marketEntry.packageName;
+                        adapter.setInstalling(atak.packageName);
+                        statusView.setText("Installing TAKwerx Market for ATAK "
+                                + MarketEntry.atakOf(targetApi) + ", then ATAK\u2026");
+                        try {
+                            ApkInstaller.handToInstaller(hostContext, marketFile);
+                        } catch (Exception e) {
+                            pendingAtakApk = null;
+                            ApkInstaller.discard(atakFile);
+                            clearInstalling();
+                            statusView.setText("Could not start the installer: " + e.getMessage());
+                            return;
+                        }
+                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (pendingAtakApk != null
+                                        && marketEntry.packageName.equals(installing)) {
+                                    // Nothing came back: the market install was
+                                    // cancelled, so ATAK's file is dropped and
+                                    // nothing else happens.
+                                    ApkInstaller.discard(pendingAtakApk);
+                                    pendingAtakApk = null;
+                                    clearInstalling();
+                                    statusView.setText("ATAK update cancelled before it started.");
+                                }
+                            }
+                        }, INSTALL_WAIT_MS);
+                    }
+                });
+            }
+        }, "takwerx-market-atak").start();
     }
 
     public MarketView(Context pluginContext, Context hostContext, String baseUrl,
@@ -154,6 +391,13 @@ public class MarketView implements MarketAdapter.ActionListener {
         statusView = root.findViewById(R.id.market_status);
         footnote = root.findViewById(R.id.market_footnote);
         refresh = root.findViewById(R.id.market_refresh);
+        updateAll = root.findViewById(R.id.market_update_all);
+        updateAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateAllPending();
+            }
+        });
 
         adapter = new MarketAdapter(pluginContext, pluginApi, this);
         ListView list = root.findViewById(R.id.market_list);
@@ -181,8 +425,63 @@ public class MarketView implements MarketAdapter.ActionListener {
         }
     }
 
+    /**
+     * Step two of the ATAK update: the market's build for the new ATAK is on
+     * the device, now ATAK itself. ATAK dies in the replace and comes back on
+     * the new version, where that build loads.
+     *
+     * Called from whichever fires first. The package watcher sees the market's
+     * own package-added; but ATAK's registry also sees the package-REMOVED that
+     * precedes it and unloads the plugin, which disposes this view and its
+     * watcher before the added event arrives. So dispose() calls this too.
+     * Whichever runs, the other finds nothing pending.
+     */
+    private void handAtakOver() {
+        java.io.File atak = pendingAtakApk;
+        if (atak == null)
+            return;
+        pendingAtakApk = null;
+        installing = hostContext.getPackageName();
+        try {
+            ApkInstaller.handToInstaller(hostContext, atak);
+            Log.d(TAG, "ATAK handed to the installer");
+        } catch (Exception e) {
+            installing = null;
+            Log.e(TAG, "could not start the ATAK install", e);
+            Toast.makeText(hostContext, "Could not start the ATAK install: " + e.getMessage(),
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /** Is the market on the device now the build for the ATAK about to go on? */
+    private boolean marketBuildLanded() {
+        try {
+            android.content.pm.ApplicationInfo ai = hostContext.getPackageManager()
+                    .getApplicationInfo(pluginContext.getPackageName(),
+                            android.content.pm.PackageManager.GET_META_DATA);
+            String api = ai.metaData == null ? null : ai.metaData.getString("plugin-api");
+            return pendingTargetApi != null && pendingTargetApi.equalsIgnoreCase(api);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /** Called when the plugin stops. Leaving these registered leaks them. */
     public void dispose() {
+        // Unloaded mid-upgrade is expected: ATAK unloads a plugin whose package
+        // is being replaced. Finish the job on the way out -- but only if the
+        // market's build for the new ATAK really landed. dispose() also runs
+        // when ATAK exits, and an operator who cancelled step one and then quit
+        // must not be handed step two: that is the new ATAK with no market.
+        if (pendingAtakApk != null) {
+            if (marketBuildLanded()) {
+                handAtakOver();
+            } else {
+                ApkInstaller.discard(pendingAtakApk);
+                pendingAtakApk = null;
+                Log.d(TAG, "ATAK update dropped: the market's new build did not land");
+            }
+        }
         try {
             hostContext.unregisterReceiver(packageWatcher);
         } catch (Exception e) {
@@ -260,9 +559,17 @@ public class MarketView implements MarketAdapter.ActionListener {
         int otherAtak = 0;
         int installed = 0;
         for (MarketEntry e : entries) {
+            MarketEntry.Status st = e.status(pluginApi);
+            if (e.isAtak()) {
+                // ATAK is a row, not a plugin: it counts as an update when it
+                // is one, and nowhere else in the header.
+                if (st == MarketEntry.Status.UPDATE_AVAILABLE)
+                    updates++;
+                continue;
+            }
             if (e.installed)
                 installed++;
-            switch (e.status(pluginApi)) {
+            switch (st) {
                 case UPDATE_AVAILABLE:
                     updates++;
                     offered++;
@@ -281,6 +588,13 @@ public class MarketView implements MarketAdapter.ActionListener {
         // had been updated, while the header underneath said nothing to update.
         if (updateCountListener != null)
             updateCountListener.onUpdateCount(updates);
+
+        int pluginUpdates = 0;
+        for (MarketEntry e : entries)
+            if (!e.isAtak() && e.status(pluginApi) == MarketEntry.Status.UPDATE_AVAILABLE)
+                pluginUpdates++;
+        updateAll.setText("Update all (" + pluginUpdates + ")");
+        updateAll.setVisibility(pluginUpdates >= 2 ? View.VISIBLE : View.GONE);
 
         String atak = pluginApi == null ? "this ATAK"
                 : "ATAK " + pluginApi.substring(pluginApi.indexOf('@') + 1);
@@ -337,31 +651,15 @@ public class MarketView implements MarketAdapter.ActionListener {
     public void onInstall(final MarketEntry entry) {
         if (busy)
             return;
+        if (entry.isAtak()) {
+            confirmAtakUpgrade(entry);
+            return;
+        }
         busy = true;
         refresh.setEnabled(false);
         adapter.setDownloading(entry.packageName, 0);
 
-        // Progress arrives every few kilobytes, which is far more often than a
-        // screen can usefully change. Repaint only when the whole percent moves.
-        final MarketHttp.Progress progress = new MarketHttp.Progress() {
-            private int lastPercent = -2;
-
-            @Override
-            public void onProgress(long bytesRead, long total) {
-                final int pct = total > 0
-                        ? (int) Math.min(100, bytesRead * 100 / total)
-                        : -1;
-                if (pct == lastPercent)
-                    return;
-                lastPercent = pct;
-                root.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.setDownloading(entry.packageName, pct);
-                    }
-                });
-            }
-        };
+        final MarketHttp.Progress progress = progressFor(entry);
 
         new Thread(new Runnable() {
             @Override
@@ -392,6 +690,7 @@ public class MarketView implements MarketAdapter.ActionListener {
                             return;
                         }
                         adapter.setDownloading(null, 0);
+                        queue.clear();               // one failure stops "Update all"
                         if (r.signerConflict) {
                             offerUninstall(entry, r.message);
                         } else {
@@ -495,7 +794,7 @@ public class MarketView implements MarketAdapter.ActionListener {
      */
     private void resolveLoaded(List<MarketEntry> list) {
         for (MarketEntry e : list)
-            e.loaded = e.installed ? PluginControl.isLoaded(e.packageName) : null;
+            e.loaded = e.installed && e.isPlugin() ? PluginControl.isLoaded(e.packageName) : null;
     }
 
     /** Re-read what is installed, without going back to the network. */

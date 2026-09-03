@@ -26,7 +26,8 @@ public final class MarketHttp {
     /** A catalog is a few kilobytes; a megabyte is already a signal something is wrong. */
     public static final int MAX_CATALOG_BYTES = 1024 * 1024;
     /** No takwerx plugin is anywhere near this. It bounds a hostile or broken server. */
-    public static final long MAX_APK_BYTES = 200L * 1024 * 1024;
+    /** ATAK-CIV itself is about 370 MB; plugins are a few. */
+    public static final long MAX_APK_BYTES = 600L * 1024 * 1024;
 
     public interface Progress {
         void onProgress(long bytesRead, long total);

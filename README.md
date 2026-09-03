@@ -1,10 +1,10 @@
 ATAK Plugin — TAKwerx Market
 
-**Download TAKwerx Market 0.8** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 0.9** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v0.8/ATAK-Plugin-TakwerxMarket-0.8--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v0.8/ATAK-Plugin-TakwerxMarket-0.8--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v0.8/ATAK-Plugin-TakwerxMarket-0.8--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v0.9/ATAK-Plugin-TakwerxMarket-0.9--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v0.9/ATAK-Plugin-TakwerxMarket-0.9--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v0.9/ATAK-Plugin-TakwerxMarket-0.9--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -37,14 +37,21 @@ Capabilities:
     refuses to install anything not signed by a TAK Product Center
     plugin-release certificate.
 
-The catalog hosts no APKs. Each entry links to that plugin's own signed release,
-so the plugin a user installs is the same file published by its own project, and
-this plugin distributes nothing.
+  - Updates ATAK itself. The catalog carries the newest ATAK-CIV release; a
+    phone on an older one is offered it, and the market installs its own build
+    for the new ATAK first, then hands ATAK to Android, so that when ATAK comes
+    back the market is there to move every plugin over.
+
+The catalog hosts no plugin APKs. Each plugin entry links to that plugin's own
+signed release, so the plugin a user installs is the same file published by its
+own project. ATAK-CIV is the exception: the tak.gov release is copied to the
+catalog host byte for byte, its TAK Product Center signature intact, and the
+market pins that signature for ATAK's package before Android is asked.
 
 _________________________________________________________________
 STATUS
 
-Version 0.8. Eighth submission.
+Version 0.9. Ninth submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -112,6 +119,18 @@ declares, and a build for another ATAK is offered the build for this one:
 "1.1 · built for 5.7.0.CIV → 5.8.0.CIV", counted on the badge, replaced in
 place. Verified on ATAK-CIV 5.8.0.3 with a tak.gov 5.7 build of Cam Depot
 installed: offered, replaced through Android's installer, one load prompt.
+
+0.9 updates ATAK. The catalog carries the newest ATAK-CIV, and a phone on an
+older one gets a row for it. Tapping Update downloads ATAK, then the market's
+own build for the new ATAK, verifies both, and hands them to Android in that
+order: the market's new build first (Android replaces the file; the running
+copy carries on), then ATAK. ATAK restarts on the new version, the new market
+loads, and every plugin built for the old ATAK shows as an update, with an
+"Update all" button to run them one after another. ATAK's own signing
+certificate is pinned for its package alone; an ATAK that did not come from
+tak.gov is told so and left alone. Verified on ATAK-CIV 5.8.0.3 (dev build):
+the row, the warning, and the refusal for a non-tak.gov ATAK. The full
+5.7 to 5.8 run needs a tak.gov-signed build on an official ATAK.
 
 _________________________________________________________________
 POINT OF CONTACTS
@@ -212,6 +231,18 @@ DEVELOPER NOTES
   process can touch the file between the check and the installer's copy. It is written to a subdirectory of the path ATAK's own
   FileProvider declares, because the startup sweep empties what it is pointed at
   and ATAK keeps its own plugin APKs in that directory.
+
+  Updating ATAK from inside ATAK is a two-file, two-prompt handoff, and the
+  order is the design. The market's own build for the NEW ATAK is installed
+  first: Android replaces the APK on disk while the running code carries on
+  from the old one (measured on official 5.7: the old classes kept running
+  until the process restarted). Then ATAK. ATAK is killed by its own replace
+  and comes back on the new version, where the market's new build loads and
+  offers every plugin its matching build. Done the other way round, the new
+  ATAK comes up with no market to finish the job. Both files are downloaded
+  and verified before either is handed over, so nothing depends on the
+  network between the two prompts. If the catalog has no market build for the
+  target ATAK, ATAK is not updated either.
 
   The SHA-256 check only proves the bytes match the catalog, which is worth
   nothing if the catalog is not trustworthy. Signer pinning is what establishes

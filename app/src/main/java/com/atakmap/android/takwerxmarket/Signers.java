@@ -52,6 +52,54 @@ public final class Signers {
             "f24a38057275fcecf67be975ab803d12f75dc23581bef69cba9eb03a15bb8c17",
     };
 
+    /**
+     * The certificate ATAK-CIV itself is signed with, read 2026-09-02 from the
+     * tak.gov 5.7.0.14 and 5.8.0.4 downloads and from the official 5.7.0.5
+     * installed on a phone. It is NOT a plugin certificate and must not be
+     * accepted for one; it is accepted only for ATAK's own package.
+     */
+    private static final String ATAK_CIV_CERT =
+            "94cf4bac08acfd8a90ddfce88f5772215ae0639833d5dd8bfe3fd6819c8961da";
+
+    /** ATAK's own package, the one this code runs inside of. */
+    public static boolean isAtakPackage(Context context, String packageName) {
+        return packageName != null && packageName.equals(context.getPackageName());
+    }
+
+    /**
+     * Per-package pin: ATAK's own package must be signed with ATAK's own
+     * certificate; everything else must be signed with a TAK plugin-release
+     * certificate. Fails closed on an empty set either way.
+     */
+    public static boolean isTakSigned(Context context, String packageName, Set<String> apkSigners) {
+        if (isAtakPackage(context, packageName))
+            return allKnown(apkSigners, new String[] { ATAK_CIV_CERT });
+        return isTakSigned(apkSigners);
+    }
+
+    /** True when the ATAK this runs inside was itself signed by tak.gov. */
+    public static boolean hostIsTakSigned(Context context) {
+        return allKnown(ofInstalled(context, context.getPackageName()),
+                new String[] { ATAK_CIV_CERT });
+    }
+
+    private static boolean allKnown(Set<String> signers, String[] allowed) {
+        if (signers.isEmpty())
+            return false;
+        for (String s : signers) {
+            boolean known = false;
+            for (String ok : allowed) {
+                if (ok.equalsIgnoreCase(s)) {
+                    known = true;
+                    break;
+                }
+            }
+            if (!known)
+                return false;
+        }
+        return true;
+    }
+
     private Signers() {
     }
 

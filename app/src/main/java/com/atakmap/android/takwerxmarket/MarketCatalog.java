@@ -55,6 +55,19 @@ public final class MarketCatalog {
         }
     }
 
+    /**
+     * The catalog for exactly this plugin-api, with no fallback to the combined
+     * one. Used when the caller must know what is published for a SPECIFIC
+     * ATAK -- the one about to be installed -- and a wrong answer would leave
+     * the device without a market.
+     */
+    public static List<MarketEntry> fetchExact(String baseUrl, String pluginApi) throws IOException {
+        String versionDir = versionDirectory(pluginApi);
+        if (versionDir == null)
+            throw new IOException("no catalog directory for " + pluginApi);
+        return parse(MarketHttp.getText(stripTrailingSlash(baseUrl) + "/" + versionDir + "/product.inf"));
+    }
+
     /** "com.atakmap.app@5.8.0.CIV" -> "5.8.0.CIV" */
     static String versionDirectory(String pluginApi) {
         if (pluginApi == null)
@@ -190,6 +203,10 @@ public final class MarketCatalog {
                 int rank = rank(a) - rank(b);
                 if (rank != 0)
                     return rank;
+                // ATAK itself above the plugins in the same group, so an ATAK
+                // update is the first thing seen rather than found by scrolling.
+                if (a.isAtak() != b.isAtak())
+                    return a.isAtak() ? -1 : 1;
                 return a.label.compareToIgnoreCase(b.label);
             }
 

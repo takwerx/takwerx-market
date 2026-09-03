@@ -3,7 +3,7 @@
 
 #show: userguide.with(
    plugin-name: "TAKwerx Market",
-   plugin-version: "0.8",
+   plugin-version: "0.9",
    platform: "ATAK",
    platform-version: "5.8.0",
 )
@@ -198,6 +198,33 @@ elevation and cameras are still there for the next install.
   The market knows because it reads the ATAK release each installed plugin
   was built for, not just its version number. The number alone would say
   nothing had changed.
+]
+]
+
+#tak-slide[
+= Updating ATAK itself
+
+#toolbox.side-by-side(columns: (4fr, 7fr))[
+  #image("19-atak-row.png", width: 92%)
+][
+  When a newer ATAK-CIV is out, the market shows it as a row of its own, above
+  the plugins, with an *Update* button. Tap it and read the warning, because
+  this one restarts ATAK.
+
+  The market downloads ATAK (about 370 MB), then its own build for the new
+  ATAK, and checks both. Then two Android prompts, back to back: first the
+  market's new build, then ATAK. If ATAK asks to load TAKwerx Market between
+  the two, tap *Cancel*; it loads after the restart. Do not cancel the ATAK
+  install once it starts.
+
+  ATAK comes back on the new version. Open the market: every plugin you had
+  is listed as *built for 5.7.0.CIV → 5.8.0.CIV*, and *Update all* moves them
+  over one after another, each with the same three screens as one update.
+
+  The ATAK file is the TAK Product Center's own release, copied unchanged and
+  carrying its signature; the market checks that signature, and that the file
+  is the version it was told, before Android ever sees it. An ATAK that did
+  not come from tak.gov cannot be updated from here, and the market says so.
 ]
 ]
 

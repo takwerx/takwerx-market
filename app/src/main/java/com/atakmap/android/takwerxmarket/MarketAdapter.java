@@ -175,7 +175,8 @@ public class MarketAdapter extends BaseAdapter {
         // Two lookups per row per draw. A handful of rows makes that far cheaper
         // than being wrong about what is installed.
         MarketCatalog.resolveInstalled(pluginContext, java.util.Collections.singletonList(e));
-        e.loaded = e.installed ? PluginControl.isLoaded(e.packageName) : null;
+        // ATAK itself is not a plugin: nothing to load or unload.
+        e.loaded = e.installed && e.isPlugin() ? PluginControl.isLoaded(e.packageName) : null;
 
         MarketEntry.Status s = e.status(pluginApi);
 
@@ -267,7 +268,7 @@ public class MarketAdapter extends BaseAdapter {
         // The row itself carries the manage actions. A ListView stops firing
         // OnItemClickListener once a row contains a focusable Button, so the
         // listener goes on the row rather than on the ListView.
-        final boolean manageable = e.installed;
+        final boolean manageable = e.installed && e.isPlugin();
         row.setOnClickListener(manageable ? new View.OnClickListener() {
             @Override
             public void onClick(View v) {

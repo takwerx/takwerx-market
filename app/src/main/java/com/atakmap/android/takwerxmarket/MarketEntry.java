@@ -68,6 +68,15 @@ public class MarketEntry {
                 && !installedPluginApi.equalsIgnoreCase(runningPluginApi);
     }
 
+    /**
+     * The catalog row for ATAK itself: type "app", ATAK's own package. It has no
+     * plugin-api requirement, so it is "compatible" with every ATAK, and its
+     * installed version is whatever ATAK this code is running inside.
+     */
+    public boolean isAtak() {
+        return !isPlugin() && packageName != null && packageName.startsWith("com.atakmap.app");
+    }
+
     /** "com.atakmap.app@5.7.0.CIV" -> "5.7.0.CIV"; null -> null. */
     public static String atakOf(String pluginApi) {
         if (pluginApi == null)

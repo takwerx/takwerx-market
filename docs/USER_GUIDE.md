@@ -1,12 +1,12 @@
 # TAKwerx Market for ATAK — User Guide
 
-**Version 0.8 · takwerx**
+**Version 0.9 · takwerx**
 
-**Download TAKwerx Market 0.8** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 0.9** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v0.8/ATAK-Plugin-TakwerxMarket-0.8--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v0.8/ATAK-Plugin-TakwerxMarket-0.8--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v0.8/ATAK-Plugin-TakwerxMarket-0.8--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v0.9/ATAK-Plugin-TakwerxMarket-0.9--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v0.9/ATAK-Plugin-TakwerxMarket-0.9--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v0.9/ATAK-Plugin-TakwerxMarket-0.9--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -169,6 +169,28 @@ market from the downloads above, and each of those plugins shows up amber as
 you are moved over.
 
 ![After an ATAK upgrade: Cam Depot 1.1 built for 5.7.0.CIV, offered the 5.8.0.CIV build](screenshots/18-after-atak-upgrade.png)
+
+### Updating ATAK itself
+
+When a newer ATAK-CIV is out, the market shows it as a row of its own, above
+the plugins, with an **Update** button.
+
+![The ATAK-CIV row above the plugins, offering 5.8.0.4, with Update all beside it](screenshots/19-atak-row.png)
+
+Tap it and read the warning, because this one restarts ATAK. The market
+downloads ATAK (about 370 MB), then its own build for the new ATAK, and checks
+both. Then two Android prompts, back to back: first the market's new build,
+then ATAK. If ATAK asks to load TAKwerx Market between the two, tap Cancel; it
+loads after the restart. Do not cancel the ATAK install once it starts.
+
+ATAK comes back on the new version. Open the market: every plugin you had is
+listed as *built for 5.7.0.CIV → 5.8.0.CIV*, and **Update all** moves them over
+one after another, each with the same three screens as a single update.
+
+The ATAK file is the TAK Product Center's own release, copied unchanged and
+carrying its signature; the market checks that signature before Android ever
+sees the file. An ATAK that did not come from tak.gov cannot be updated from
+here, and the market says so instead of letting Android fail.
 
 ### "signed with a different key"
 

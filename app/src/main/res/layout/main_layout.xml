@@ -38,6 +38,23 @@
             android:text="@string/market_refresh" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp">
+
+        <Button
+            android:id="@+id/market_update_all"
+            style="@style/TakwerxButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="Update all" />
+    </LinearLayout>
+
     <ListView
         android:id="@+id/market_list"
         android:layout_width="match_parent"

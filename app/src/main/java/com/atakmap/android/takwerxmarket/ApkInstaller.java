@@ -84,14 +84,63 @@ public final class ApkInstaller {
      */
     public static Result fetchAndInstall(Context hostContext, String baseUrl,
             MarketEntry entry, MarketHttp.Progress progress) {
+        Fetched f = fetchAndVerify(hostContext, baseUrl, entry, progress);
+        if (f.apk == null)
+            return f.result;
+        try {
+            handToInstaller(hostContext, f.apk);
+        } catch (Exception e) {
+            delete(f.apk);
+            Log.e(TAG, "install failed for " + entry.packageName, e);
+            return new Result(false, "Could not start the installer: " + e.getMessage());
+        }
+        return new Result(true, null);
+    }
+
+    /** A verified file ready for the installer, or the reason there is none. */
+    public static final class Fetched {
+        public final File apk;
+        public final Result result;
+        /** versionName read out of the file itself, never out of the catalog. */
+        public final String versionName;
+
+        Fetched(File apk, Result result) {
+            this(apk, result, null);
+        }
+
+        Fetched(File apk, Result result, String versionName) {
+            this.apk = apk;
+            this.result = result;
+            this.versionName = versionName;
+        }
+    }
+
+    /**
+     * Download and verify, but do not install. The caller decides when the
+     * file goes to Android -- the ATAK upgrade needs two verified files in hand
+     * before either is handed over.
+     */
+    public static Fetched fetchAndVerify(Context hostContext, String baseUrl,
+            MarketEntry entry, MarketHttp.Progress progress) {
 
         File dir = downloadDir(hostContext);
         if (!dir.exists() && !dir.mkdirs())
-            return new Result(false, "Could not create the download folder");
+            return new Fetched(null, new Result(false, "Could not create the download folder"));
 
         File apk = new File(dir, safeFileName(entry));
         if (apk.exists() && !apk.delete())
             Log.w(TAG, "could not clear a previous download");
+
+        // ATAK is ~370 MB and the installer stages its own copy, so ask before
+        // filling the disk: the download plus room for the copy.
+        if (entry.size > 0 && entry.size < Long.MAX_VALUE / 4) {
+            long need = entry.size * 2 + 50L * 1024 * 1024;
+            long free = dir.getUsableSpace();
+            if (free < need)
+                return new Fetched(null, new Result(false, "Not enough free space for "
+                        + entry.label + ": " + (need / (1024 * 1024)) + " MB needed, "
+                        + (free / (1024 * 1024)) + " MB free."));
+        }
 
         try {
             String url = resolve(baseUrl, entry.apkPath);
@@ -99,13 +148,13 @@ public final class ApkInstaller {
 
             if (entry.hash == null || entry.hash.length() == 0) {
                 delete(apk);
-                return new Result(false, "The catalog carries no hash for "
-                        + entry.label + ", so it was not installed");
+                return new Fetched(null, new Result(false, "The catalog carries no hash for "
+                        + entry.label + ", so it was not installed"));
             }
             if (!entry.hash.equalsIgnoreCase(actual)) {
                 delete(apk);
-                return new Result(false, "Download did not match the catalog hash. "
-                        + entry.label + " was not installed.");
+                return new Fetched(null, new Result(false, "Download did not match the catalog hash. "
+                        + entry.label + " was not installed."));
             }
 
             // The hash only proves the bytes match the catalog. If the catalog is
@@ -120,13 +169,13 @@ public final class ApkInstaller {
             // render and install exactly like a plugin. Everything the market
             // installs is pinned, whatever the catalog calls it.
             java.util.Set<String> apkSigners = Signers.ofApk(hostContext, apk);
-            if (!Signers.isTakSigned(apkSigners)) {
+            if (!Signers.isTakSigned(hostContext, entry.packageName, apkSigners)) {
                 delete(apk);
                 Log.w(TAG, "refusing unsigned/foreign build of " + entry.packageName);
-                return new Result(false, entry.label + " was not installed: the"
+                return new Fetched(null, new Result(false, entry.label + " was not installed: the"
                         + " downloaded build is not signed by the TAK Product"
                         + " Center. Nothing outside tak.gov's signing pipeline"
-                        + " can be installed from here.");
+                        + " can be installed from here."));
             }
 
             // Android will not replace an app with one signed by a different key,
@@ -136,27 +185,60 @@ public final class ApkInstaller {
                     Signers.ofInstalled(hostContext, entry.packageName),
                     apkSigners)) {
                 delete(apk);
-                return new Result(false, entry.label + " on this device was signed"
+                if (entry.isAtak())
+                    return new Fetched(null, new Result(false, "The ATAK on this device was"
+                            + " not installed from tak.gov (it carries a different"
+                            + " signing key), so it cannot be updated from here."));
+                return new Fetched(null, new Result(false, entry.label + " on this device was signed"
                         + " with a different key than the market's build, so"
-                        + " Android will not replace it.", true);
+                        + " Android will not replace it.", true));
+            }
+
+            // The signer proves who built it, not what it is. A hostile catalog
+            // could label an older tak.gov-signed ATAK as a new version and
+            // Android would take it, because ATAK's versionCode is a build
+            // timestamp rather than the release number (5.6.0.23 outranks
+            // 5.7.0.14). So read the file's own identity and hold it to the row.
+            android.content.pm.PackageInfo pi = hostContext.getPackageManager()
+                    .getPackageArchiveInfo(apk.getAbsolutePath(), 0);
+            if (pi == null || !entry.packageName.equals(pi.packageName)) {
+                delete(apk);
+                return new Fetched(null, new Result(false, "The downloaded file is not "
+                        + entry.label + " (it is "
+                        + (pi == null ? "unreadable" : pi.packageName) + "), so it was not installed."));
+            }
+            if (entry.isAtak()) {
+                String fileCore = AtakTarget.coreVersion(pi.versionName);
+                String rowCore = AtakTarget.coreVersion(entry.version);
+                if (fileCore == null || !fileCore.equals(rowCore)) {
+                    delete(apk);
+                    return new Fetched(null, new Result(false, "The downloaded ATAK is "
+                            + pi.versionName + ", not the " + entry.version
+                            + " the catalog promised, so it was not installed."));
+                }
+                if (!PluginVersion.isNewer(pi.versionName, entry.installedVersion)) {
+                    delete(apk);
+                    return new Fetched(null, new Result(false, "The downloaded ATAK ("
+                            + pi.versionName + ") is not newer than the one running ("
+                            + entry.installedVersion + "), so it was not installed."));
+                }
             }
 
             // Everything above is a reason to refuse. Past this point the file
-            // is verified and Android takes over. The installer copies the file
+            // is verified. Whoever hands it to Android: the installer copies it
             // into its own staging when it launches (API 24 and up), but we are
-            // not told when that is done, so the file stays on disk until the
-            // next ATAK start, when purgeDownloads() clears it.
-            handToInstaller(hostContext, apk);
-            return new Result(true, null);
+            // not told when, so the file stays on disk until the next ATAK
+            // start, when purgeDownloads() clears it.
+            return new Fetched(apk, new Result(true, null), pi.versionName);
 
         } catch (IOException e) {
             delete(apk);
             Log.e(TAG, "download failed for " + entry.packageName, e);
-            return new Result(false, "Download failed: " + e.getMessage());
+            return new Fetched(null, new Result(false, "Download failed: " + e.getMessage()));
         } catch (Exception e) {
             delete(apk);
-            Log.e(TAG, "install failed for " + entry.packageName, e);
-            return new Result(false, "Could not start the installer: " + e.getMessage());
+            Log.e(TAG, "verify failed for " + entry.packageName, e);
+            return new Fetched(null, new Result(false, "Could not verify the download: " + e.getMessage()));
         }
     }
 
@@ -177,7 +259,7 @@ public final class ApkInstaller {
      * The cost is blindness to cancel: nothing says the operator backed out. The
      * pane watches the package broadcast for success and times out otherwise.
      */
-    private static void handToInstaller(Context hostContext, File apk) {
+    public static void handToInstaller(Context hostContext, File apk) {
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setDataAndType(contentUri(hostContext, apk),
                 "application/vnd.android.package-archive");
@@ -248,6 +330,11 @@ public final class ApkInstaller {
             if (f.isFile() && !f.delete())
                 Log.w(TAG, "could not remove stale download " + f.getName());
         }
+    }
+
+    /** Drop a verified file that will not be handed over after all. */
+    public static void discard(File f) {
+        delete(f);
     }
 
     private static void delete(File f) {

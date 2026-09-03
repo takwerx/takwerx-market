@@ -77,6 +77,20 @@ public final class AtakTarget {
      * major.minor.subminor; the fourth component is the build and is not part of
      * the compatibility contract.
      */
+    /**
+     * The plugin-api an ATAK of the given version would report, keeping the
+     * running flavor: running "com.atakmap.app@5.7.0.CIV" and an ATAK versionName
+     * "5.8.0.4 (174b425)" give "com.atakmap.app@5.8.0.CIV".
+     */
+    static String apiFor(String runningPluginApi, String atakVersionName) {
+        String core = coreVersion(atakVersionName);
+        if (core == null || runningPluginApi == null)
+            return null;
+        int dot = runningPluginApi.lastIndexOf('.');
+        String flavor = dot < 0 ? "" : runningPluginApi.substring(dot);
+        return PREFIX + core + flavor;
+    }
+
     static String coreVersion(String versionName) {
         if (versionName == null)
             return null;
