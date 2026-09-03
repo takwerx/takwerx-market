@@ -42,9 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp">
+        android:gravity="end">
 
         <Button
             android:id="@+id/market_update_all"

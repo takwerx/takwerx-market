@@ -1,10 +1,10 @@
 ATAK Plugin — TAKwerx Market
 
-**Download TAKwerx Market 0.9** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.0** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v0.9/ATAK-Plugin-TakwerxMarket-0.9--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v0.9/ATAK-Plugin-TakwerxMarket-0.9--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v0.9/ATAK-Plugin-TakwerxMarket-0.9--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.0/ATAK-Plugin-TakwerxMarket-1.0--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.0/ATAK-Plugin-TakwerxMarket-1.0--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.0/ATAK-Plugin-TakwerxMarket-1.0--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -51,7 +51,7 @@ market pins that signature for ATAK's package before Android is asked.
 _________________________________________________________________
 STATUS
 
-Version 0.9. Ninth submission.
+Version 1.0. Tenth submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -131,6 +131,19 @@ certificate is pinned for its package alone; an ATAK that did not come from
 tak.gov is told so and left alone. Verified on ATAK-CIV 5.8.0.3 (dev build):
 the row, the warning, and the refusal for a non-tak.gov ATAK. The full
 5.7 to 5.8 run needs a tak.gov-signed build on an official ATAK.
+
+1.0 is that run, done. Signed 0.9 on a Samsung Galaxy S22 Ultra, official
+ATAK-CIV 5.7.0.5, Android 14: Update on the ATAK row downloaded 5.8.0.4 and
+the market's 5.8 build, Android replaced the market, ATAK unloaded it and 33
+ms later the market's stop hook handed ATAK to the installer, ATAK came back
+as 5.8.0.4 with its data, the new market's "Update all (4)" replaced the four
+5.7 plugins in fourteen seconds, all loaded, all up to date. Two things that
+run exposed are fixed here: ATAK had marked the market not-to-load when it
+unloaded it for the replace, so the new build had to be loaded by hand once
+(the handoff now marks it to load first); and the Update all button sat inset
+from Refresh. The run also found that ATAK 5.8.0.4 itself will not start with
+an Esri vector tile package in atak/imagery (a Map Depot download); that is
+ATAK's and is recorded for Map Depot, not the market's.
 
 _________________________________________________________________
 POINT OF CONTACTS

@@ -3,7 +3,7 @@
 
 #show: userguide.with(
    plugin-name: "TAKwerx Market",
-   plugin-version: "0.9",
+   plugin-version: "1.0",
    platform: "ATAK",
    platform-version: "5.8.0",
 )
@@ -201,7 +201,7 @@ elevation and cameras are still there for the next install.
 
   If you update ATAK yourself, you sideload the matching market once. If the
   market updates ATAK (next page), you do not: it puts its own new build on
-  first.
+  first. This screen is a phone the market had just moved from 5.7 to 5.8.
 ]
 ]
 
@@ -229,6 +229,25 @@ elevation and cameras are still there for the next install.
   carrying its signature; the market checks that signature, and that the file
   is the version it was told, before Android ever sees it. An ATAK that did
   not come from tak.gov cannot be updated from here, and the market says so.
+]
+]
+
+#tak-slide[
+= After the ATAK update
+
+#toolbox.side-by-side(columns: (4fr, 7fr))[
+  #image("21-all-on-58.png", width: 92%)
+][
+  ATAK is back on the new version and the market loaded with it. Its list
+  shows every plugin you had as *built for 5.7.0.CIV → 5.8.0.CIV*, the toolbar
+  count says how many, and *Update all* runs them one after another: Android's
+  confirm, Done, and "Load plugin?" for each. Four plugins took a quarter of a
+  minute on the phone this was written on.
+
+  When it is done the header says *All up to date*, ATAK's own row reads
+  *Installed* with the new version, and the count leaves the toolbar icon.
+  Nothing you had downloaded into ATAK was touched: maps, elevation and
+  cameras are all still there.
 ]
 ]
 

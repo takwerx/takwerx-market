@@ -1,12 +1,12 @@
 # TAKwerx Market for ATAK — User Guide
 
-**Version 0.9 · takwerx**
+**Version 1.0 · takwerx**
 
-**Download TAKwerx Market 0.9** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.0** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v0.9/ATAK-Plugin-TakwerxMarket-0.9--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v0.9/ATAK-Plugin-TakwerxMarket-0.9--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v0.9/ATAK-Plugin-TakwerxMarket-0.9--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.0/ATAK-Plugin-TakwerxMarket-1.0--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.0/ATAK-Plugin-TakwerxMarket-1.0--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.0/ATAK-Plugin-TakwerxMarket-1.0--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -195,9 +195,16 @@ listed as *built for 5.7.0.CIV → 5.8.0.CIV*, and **Update all** moves them ove
 one after another, each with the same three screens as a single update.
 
 The ATAK file is the TAK Product Center's own release, copied unchanged and
-carrying its signature; the market checks that signature before Android ever
-sees the file. An ATAK that did not come from tak.gov cannot be updated from
-here, and the market says so instead of letting Android fail.
+carrying its signature; the market checks that signature, and that the file is
+the version it was told, before Android ever sees it. An ATAK that did not come
+from tak.gov cannot be updated from here, and the market says so instead of
+letting Android fail.
+
+![After the ATAK update and Update all: every plugin on 5.8, header All up to date](screenshots/21-all-on-58.png)
+
+When it is done the header says **All up to date**, ATAK's own row reads
+Installed with the new version, and the count leaves the toolbar icon. Nothing
+you had downloaded into ATAK was touched.
 
 ### "signed with a different key"
 
