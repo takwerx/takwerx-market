@@ -203,7 +203,9 @@ letting Android fail.
 **Vector tile packages and ATAK 5.8.** ATAK 5.8.0.4 does not start with a
 vector tile package (Map Depot's public-lands maps) on the phone. If you have
 any, the market will not offer the 5.8 update, and says so. It comes back when
-tak.gov ships a fixed ATAK.
+tak.gov ships a fixed ATAK. To update anyway, remove the packages from the phone
+first (Map Depot's Offline Public Lands list can delete them), then tap Update
+again.
 
 ![After the ATAK update and Update all: every plugin on 5.8, header All up to date](screenshots/21-all-on-58.png)
 

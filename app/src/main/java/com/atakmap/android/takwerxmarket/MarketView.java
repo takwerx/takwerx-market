@@ -248,7 +248,9 @@ public class MarketView implements MarketAdapter.ActionListener {
                     + " on this phone: " + packages + " vector tile package"
                     + (packages == 1 ? "" : "s") + " in atak/imagery (Map Depot's public-lands"
                     + " maps). ATAK 5.8.0.4 does not start with them. Waiting on a fix from"
-                    + " tak.gov.";
+                    + " tak.gov.\n\nTo update anyway, remove the vector tile packages from the"
+                    + " phone first (Map Depot's Offline Public Lands list can delete them),"
+                    + " then tap Update again.";
             new AlertDialog.Builder(hostContext)
                     .setTitle("Not yet")
                     .setMessage(why)
