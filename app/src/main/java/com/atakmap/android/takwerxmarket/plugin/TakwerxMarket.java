@@ -247,8 +247,8 @@ public class TakwerxMarket implements IPlugin {
                         public void run() {
                             Toast.makeText(host,
                                     updates == 1
-                                            ? "Takwerx Market: 1 update available"
-                                            : "Takwerx Market: " + updates + " updates available",
+                                            ? "TAKwerx Market: 1 update available"
+                                            : "TAKwerx Market: " + updates + " updates available",
                                     Toast.LENGTH_LONG).show();
                         }
                     });

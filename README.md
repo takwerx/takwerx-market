@@ -33,7 +33,7 @@ this plugin distributes nothing.
 _________________________________________________________________
 STATUS
 
-Version 0.5. Fifth submission.
+Version 0.6. Sixth submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -77,6 +77,13 @@ two and two with ATAK named. So the APK goes to Android's installer again, as
 ATAK's own package manager does, and the row is kept honest by the package
 broadcast instead of a session result. The toolbar count also now follows the
 list -- before, it was set once at start and stayed there after every update.
+
+0.5 was confirmed on ATAK-CIV 5.7.0.5: three updates and one install from the
+pane, each through Android's own installer, one "Load plugin?" each, and the
+toolbar count going 3, 2, 1, gone as they were applied. 0.6 is wording from
+that session: the header is two lines, the count of plugins for this ATAK and
+under it "N updates available" or "All up to date"; and the startup notice
+spells the plugin's name the way the plugin does.
 
 _________________________________________________________________
 POINT OF CONTACTS

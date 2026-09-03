@@ -287,12 +287,14 @@ public class MarketView implements MarketAdapter.ActionListener {
         SpannableStringBuilder sb = new SpannableStringBuilder();
         sb.append(String.valueOf(offered))
                 .append(offered == 1 ? " plugin for " : " plugins for ").append(atak);
+        // Second line, under the count, so the state of the list is its own
+        // sentence rather than a clause tacked onto the ATAK version.
         if (updates > 0) {
             // Amber, the same colour the rows use for a pending update, so the
             // count and the rows it refers to read as one thing.
             int at = sb.length();
-            sb.append("  ·  ").append(String.valueOf(updates))
-                    .append(updates == 1 ? " update" : " updates");
+            sb.append("\n").append(String.valueOf(updates))
+                    .append(updates == 1 ? " update available" : " updates available");
             sb.setSpan(new ForegroundColorSpan(AMBER), at, sb.length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         } else if (installed > 0) {
@@ -301,8 +303,7 @@ public class MarketView implements MarketAdapter.ActionListener {
             // nothing is up to date either, and saying so would be a lie told in
             // green — the one colour an operator will not stop to question.
             int at = sb.length();
-            sb.append("  ·  ").append(installed == offered
-                    ? "all up to date" : "nothing to update");
+            sb.append("\nAll up to date");
             sb.setSpan(new ForegroundColorSpan(GREEN), at, sb.length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
