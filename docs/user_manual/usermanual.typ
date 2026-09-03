@@ -229,6 +229,12 @@ elevation and cameras are still there for the next install.
   carrying its signature; the market checks that signature, and that the file
   is the version it was told, before Android ever sees it. An ATAK that did
   not come from tak.gov cannot be updated from here, and the market says so.
+
+  == Vector tile packages and ATAK 5.8
+
+  ATAK 5.8.0.4 does not start with a vector tile package (Map Depot's
+  public-lands maps) on the phone. If you have any, the market will not offer
+  the 5.8 update, and says so. It comes back when tak.gov ships a fixed ATAK.
 ]
 ]
 

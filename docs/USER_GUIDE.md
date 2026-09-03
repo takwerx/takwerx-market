@@ -200,6 +200,11 @@ the version it was told, before Android ever sees it. An ATAK that did not come
 from tak.gov cannot be updated from here, and the market says so instead of
 letting Android fail.
 
+**Vector tile packages and ATAK 5.8.** ATAK 5.8.0.4 does not start with a
+vector tile package (Map Depot's public-lands maps) on the phone. If you have
+any, the market will not offer the 5.8 update, and says so. It comes back when
+tak.gov ships a fixed ATAK.
+
 ![After the ATAK update and Update all: every plugin on 5.8, header All up to date](screenshots/21-all-on-58.png)
 
 When it is done the header says **All up to date**, ATAK's own row reads

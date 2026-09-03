@@ -231,6 +231,55 @@ public class MarketView implements MarketAdapter.ActionListener {
         if (busy)
             return;
         final String newApi = AtakTarget.apiFor(pluginApi, atak.version);
+
+        // Known bad combination, measured 2026-09-03 on official ATAK-CIV
+        // 5.8.0.4: with any vector tile package (.vtpk, Map Depot's public-
+        // lands maps) already cataloged, ATAK dies in its own imagery scan on
+        // every start after the first. A phone with packages that is moved to
+        // 5.8 by this market would therefore not start again. So the update is
+        // not offered to such a phone, and the message says why. The market
+        // does not move anyone's files; the operator decided that. The check
+        // is by target release, not build number, until a fixed 5.8 is
+        // confirmed.
+        String core = AtakTarget.coreVersion(atak.version);
+        int packages = core != null && core.startsWith("5.8.") ? countVectorTilePackages() : 0;
+        if (packages > 0) {
+            String why = "ATAK " + PluginVersion.number(atak.version) + " update not available"
+                    + " on this phone: " + packages + " vector tile package"
+                    + (packages == 1 ? "" : "s") + " in atak/imagery (Map Depot's public-lands"
+                    + " maps). ATAK 5.8.0.4 does not start with them. Waiting on a fix from"
+                    + " tak.gov.";
+            new AlertDialog.Builder(hostContext)
+                    .setTitle("Not yet")
+                    .setMessage(why)
+                    .setPositiveButton("OK", null)
+                    .show();
+            statusView.setText(why);
+            return;
+        }
+        confirmAtakUpgradeStep2(atak, newApi);
+    }
+
+    /** How many .vtpk sit directly under ATAK's imagery folder. */
+    private static int countVectorTilePackages() {
+        int n = 0;
+        try {
+            java.io.File dir = new java.io.File(
+                    android.os.Environment.getExternalStorageDirectory(), "atak/imagery");
+            java.io.File[] files = dir.listFiles();
+            if (files != null) {
+                for (java.io.File f : files) {
+                    if (f.isFile() && f.getName().toLowerCase(java.util.Locale.US).endsWith(".vtpk"))
+                        n++;
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "could not list atak/imagery: " + e.getMessage());
+        }
+        return n;
+    }
+
+    private void confirmAtakUpgradeStep2(final MarketEntry atak, final String newApi) {
         final String to = MarketEntry.atakOf(newApi);
         int plugins = 0;
         for (MarketEntry e : entries)

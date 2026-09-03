@@ -145,6 +145,12 @@ from Refresh. The run also found that ATAK 5.8.0.4 itself will not start with
 an Esri vector tile package in atak/imagery (a Map Depot download); that is
 ATAK's and is recorded for Map Depot, not the market's.
 
+Because the market is now what hands a phone 5.8, it will not hand it to a
+phone it would break: if there are vector tile packages in atak/imagery, the
+5.8 update is not offered, and the message says why and that a fix is being
+waited on. The market moves nobody's files. The check is by target release
+rather than build number until a fixed 5.8 is confirmed.
+
 _________________________________________________________________
 POINT OF CONTACTS
 
