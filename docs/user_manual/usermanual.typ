@@ -3,7 +3,7 @@
 
 #show: userguide.with(
    plugin-name: "TAKwerx Market",
-   plugin-version: "1.1",
+   plugin-version: "1.2",
    platform: "ATAK",
    platform-version: "5.8.0",
 )
@@ -135,11 +135,11 @@ The row updates on its own. You do not need to reopen the market or refresh it.
 = Unloading and uninstalling
 
 #toolbox.side-by-side(columns: (1fr, 1fr, 1fr))[
-  #image("10-row-unloaded.png", width: 84%)
+  #image("10-row-unloaded.png", width: 70%)
 ][
-  #image("11-android-uninstall-dialog.jpg", width: 100%)
+  #image("11-android-uninstall-dialog.jpg", width: 86%)
 ][
-  #image("12-after-uninstall.png", width: 84%)
+  #image("12-after-uninstall.png", width: 70%)
 ]
 
 #v(6pt)
@@ -154,6 +154,10 @@ removed.
 
 Uninstalling a plugin does not touch the data it downloaded into ATAK. Maps,
 elevation and cameras are still there for the next install.
+
+The market updates itself the same way, as a row of its own. After that one,
+quit and reopen ATAK: ATAK keeps running the copy it already loaded until it
+is restarted, so the new market is on the phone but not yet the one running.
 ]
 
 #tak-slide[

@@ -1,10 +1,10 @@
 ATAK Plugin — TAKwerx Market
 
-**Download TAKwerx Market 1.1** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.2** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.1/ATAK-Plugin-TakwerxMarket-1.1--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.1/ATAK-Plugin-TakwerxMarket-1.1--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.1/ATAK-Plugin-TakwerxMarket-1.1--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.2/ATAK-Plugin-TakwerxMarket-1.2--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.2/ATAK-Plugin-TakwerxMarket-1.2--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.2/ATAK-Plugin-TakwerxMarket-1.2--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -51,7 +51,7 @@ market pins that signature for ATAK's package before Android is asked.
 _________________________________________________________________
 STATUS
 
-Version 1.1. Eleventh submission.
+Version 1.2. Twelfth submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -160,6 +160,16 @@ reinstall, since the plugin-api does not change and the market on the phone
 is already the right build; ATAK goes straight to Android. The 5.8 block now
 says the way out, and a row for a plugin built for another ATAK reads
 "0.1 → 0.5 · built for 5.7.0.CIV" instead of pairing a version with a release.
+
+1.2 removes a clock. On a phone that had never sideloaded from ATAK, Android
+put "install unknown apps" and Play Protect in front of the market's own
+build, which took over two minutes; a 90-second wait in the ATAK update gave
+up thirty seconds before that build landed and threw the verified ATAK away,
+leaving a 5.7 market on a 5.6 ATAK. The ATAK step now waits for the market
+build to land, however long Android takes, and the next ATAK start clears the
+file if it never does. The version chooser also says what a cross-release
+choice means for the plugins, and the guide says that after the market
+updates itself ATAK must be quit and reopened to run the new build.
 
 _________________________________________________________________
 POINT OF CONTACTS

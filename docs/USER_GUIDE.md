@@ -1,12 +1,12 @@
 # TAKwerx Market for ATAK — User Guide
 
-**Version 1.1 · takwerx**
+**Version 1.2 · takwerx**
 
-**Download TAKwerx Market 1.1** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.2** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.1/ATAK-Plugin-TakwerxMarket-1.1--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.1/ATAK-Plugin-TakwerxMarket-1.1--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.1/ATAK-Plugin-TakwerxMarket-1.1--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.2/ATAK-Plugin-TakwerxMarket-1.2--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.2/ATAK-Plugin-TakwerxMarket-1.2--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.2/ATAK-Plugin-TakwerxMarket-1.2--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -175,7 +175,9 @@ market you had was built for the old ATAK and will not load on the new one. If
 the market updates ATAK, you do not: it puts its own new build on first.
 
 The market also updates itself. When a new market is out it is a row like any
-other; Update replaces it and ATAK asks to load the new one.
+other; Update replaces it and ATAK asks to load the new one. After that, quit
+and reopen ATAK: it keeps running the copy it already loaded until restarted,
+so the new market is on the phone but not yet the one running.
 
 ### Updating ATAK itself
 

@@ -261,7 +261,9 @@ public class MarketView implements MarketAdapter.ActionListener {
                     && pluginApi.equalsIgnoreCase(AtakTarget.PREFIX + core + tail);
             labels[i] = PluginVersion.number(choices.get(i).version)
                     + (i == 0 ? "  (newest)" : "")
-                    + (sameRelease ? "  ·  same release, plugins keep working" : "");
+                    + (sameRelease
+                            ? "  ·  same release, plugins keep working"
+                            : "  ·  new release, plugins are rebuilt for " + core + " after");
         }
         new AlertDialog.Builder(hostContext)
                 .setTitle("Update ATAK to which version?")
@@ -502,21 +504,14 @@ public class MarketView implements MarketAdapter.ActionListener {
                             statusView.setText("Could not start the installer: " + e.getMessage());
                             return;
                         }
-                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (pendingAtakApk != null
-                                        && marketEntry.packageName.equals(installing)) {
-                                    // Nothing came back: the market install was
-                                    // cancelled, so ATAK's file is dropped and
-                                    // nothing else happens.
-                                    ApkInstaller.discard(pendingAtakApk);
-                                    pendingAtakApk = null;
-                                    clearInstalling();
-                                    statusView.setText("ATAK update cancelled before it started.");
-                                }
-                            }
-                        }, INSTALL_WAIT_MS);
+                        // No clock on this step. On a phone that has never sideloaded
+                        // from ATAK, Android's "install unknown apps" permission plus
+                        // Play Protect took over two minutes on the S21 (2026-09-03),
+                        // and a 90 s timer here threw the verified ATAK away thirty
+                        // seconds before the market build landed, leaving a 5.7 market
+                        // on a 5.6 ATAK. The file waits for package-added or the stop
+                        // hook; if neither ever comes, purgeDownloads() clears it at
+                        // the next ATAK start. Nothing is installed by waiting.
                     }
                 });
             }
