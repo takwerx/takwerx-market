@@ -56,6 +56,14 @@ public class MarketEntry {
     public String installedPluginApi;
 
     /**
+     * For ATAK's row only: the other ATAK releases the catalog carries, newest
+     * first, folded under this (the newest) one so the pane shows one ATAK row
+     * and the operator picks a version when more than one is newer than what
+     * is running. Empty for plugins.
+     */
+    public final java.util.List<MarketEntry> alternatives = new java.util.ArrayList<>();
+
+    /**
      * Installed, but built for an ATAK other than the one running. Such a
      * plugin cannot load here whatever its version number says, and ATAK's own
      * package manager marks it incompatible. The version comparison alone

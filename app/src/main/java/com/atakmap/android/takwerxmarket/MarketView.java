@@ -230,6 +230,52 @@ public class MarketView implements MarketAdapter.ActionListener {
     private void confirmAtakUpgrade(final MarketEntry atak) {
         if (busy)
             return;
+        // Only the package this code runs inside is ATAK. Checked here, before
+        // any chooser, so a catalog row for some other com.atakmap.app.*
+        // package never gets as far as being offered.
+        if (!Signers.isAtakPackage(hostContext, atak.packageName)) {
+            statusView.setText("Refusing to treat " + atak.packageName + " as ATAK.");
+            return;
+        }
+        // Which ATAK? The newest leads the row; every alternative that is
+        // still newer than what runs is offered too, so a phone can take the
+        // safe 5.7 while 5.8 has its vector-tile problem. Installed state is
+        // READ for each alternative, not copied from the row.
+        MarketCatalog.resolveInstalled(hostContext, atak.alternatives);
+        final List<MarketEntry> choices = new ArrayList<>();
+        choices.add(atak);
+        for (MarketEntry alt : atak.alternatives) {
+            if (alt.installed && alt.packageName.equals(atak.packageName)
+                    && PluginVersion.isNewer(alt.version, alt.installedVersion))
+                choices.add(alt);
+        }
+        if (choices.size() == 1) {
+            guardAndConfirmAtak(atak);
+            return;
+        }
+        final String[] labels = new String[choices.size()];
+        for (int i = 0; i < choices.size(); i++) {
+            String core = AtakTarget.coreVersion(choices.get(i).version);
+            String tail = pluginApi == null ? "" : pluginApi.substring(pluginApi.lastIndexOf('.'));
+            boolean sameRelease = pluginApi != null
+                    && pluginApi.equalsIgnoreCase(AtakTarget.PREFIX + core + tail);
+            labels[i] = PluginVersion.number(choices.get(i).version)
+                    + (i == 0 ? "  (newest)" : "")
+                    + (sameRelease ? "  ·  same release, plugins keep working" : "");
+        }
+        new AlertDialog.Builder(hostContext)
+                .setTitle("Update ATAK to which version?")
+                .setItems(labels, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int which) {
+                        guardAndConfirmAtak(choices.get(which));
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void guardAndConfirmAtak(final MarketEntry atak) {
         final String newApi = AtakTarget.apiFor(pluginApi, atak.version);
 
         // Known bad combination, measured 2026-09-03 on official ATAK-CIV
@@ -288,16 +334,27 @@ public class MarketView implements MarketAdapter.ActionListener {
             if (e.installed && e.isPlugin())
                 plugins++;
         String mb = atak.size > 0 ? " (" + (atak.size / (1024 * 1024)) + " MB)" : "";
-        new AlertDialog.Builder(hostContext)
-                .setTitle("Update ATAK to " + PluginVersion.number(atak.version) + "?")
-                .setMessage("The market will download ATAK" + mb + ", then install its own"
+        // Same release (5.7.0.5 -> 5.7.0.14): the plugin-api does not change,
+        // so nothing built for it changes either. ATAK alone.
+        final boolean sameRelease = pluginApi != null && pluginApi.equalsIgnoreCase(newApi);
+        String message = sameRelease
+                ? "The market will download ATAK" + mb + ", verify it, and hand it to"
+                        + " Android. ATAK restarts on the new version. It is the same ATAK"
+                        + " release, so the market and your " + plugins
+                        + (plugins == 1 ? " plugin keep" : " plugins keep") + " working as they are."
+                        + "\n\nAnswer Android's prompt when it comes, and do not cancel the"
+                        + " install once it starts."
+                : "The market will download ATAK" + mb + ", then install its own"
                         + " build for ATAK " + to + ", then hand ATAK to Android."
                         + " ATAK restarts on the new version; open the market again and it"
                         + " will offer " + to + " builds of your " + plugins
                         + (plugins == 1 ? " plugin." : " plugins.")
                         + "\n\nAnswer Android's prompts as they come. If ATAK asks to load"
                         + " TAKwerx Market in between, tap Cancel; it loads after the restart."
-                        + " Do not cancel the ATAK install once it starts.")
+                        + " Do not cancel the ATAK install once it starts.";
+        new AlertDialog.Builder(hostContext)
+                .setTitle("Update ATAK to " + PluginVersion.number(atak.version) + "?")
+                .setMessage(message)
                 .setPositiveButton("Update ATAK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface d, int w) {
@@ -351,12 +408,25 @@ public class MarketView implements MarketAdapter.ActionListener {
                         // installed. Not there yet? Then ATAK is not updated
                         // either: a phone with no market on it is the one
                         // outcome this must never produce.
+                        //
+                        // Unless the plugin-api does not change (5.7.0.5 to
+                        // 5.7.0.14): then the market on the phone is already
+                        // the right build, and fetching "its own build for the
+                        // new ATAK" would replace it with whatever the catalog
+                        // lists -- possibly older. ATAK alone in that case.
                         String me = pluginContext.getPackageName();
-                        for (MarketEntry e : MarketCatalog.fetchExact(baseUrl, newApi)) {
-                            if (me.equals(e.packageName) && e.isCompatibleWith(newApi))
-                                marketNew = e;
+                        if (pluginApi != null && pluginApi.equalsIgnoreCase(newApi)) {
+                            marketNew = null;
+                        } else {
+                            for (MarketEntry e : MarketCatalog.fetchExact(baseUrl, newApi)) {
+                                if (me.equals(e.packageName) && e.isCompatibleWith(newApi))
+                                    marketNew = e;
+                            }
                         }
-                        if (marketNew == null) {
+                        boolean sameRelease = pluginApi != null && pluginApi.equalsIgnoreCase(newApi);
+                        if (sameRelease) {
+                            // ATAK alone; the hand-over below sees marketNew == null.
+                        } else if (marketNew == null) {
                             fail = "No TAKwerx Market build for ATAK " + MarketEntry.atakOf(newApi)
                                     + " is published yet, so ATAK was not updated.";
                         } else {
@@ -398,6 +468,21 @@ public class MarketView implements MarketAdapter.ActionListener {
                             adapter.setDownloading(null, 0);
                             statusView.setText(failMsg);
                             Toast.makeText(hostContext, failMsg, Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        if (marketEntry == null) {
+                            // Same release: no market step. ATAK goes straight
+                            // to Android; it dies in the replace and comes back.
+                            installing = hostContext.getPackageName();
+                            adapter.setInstalling(atak.packageName);
+                            statusView.setText("Handing ATAK to Android\u2026");
+                            try {
+                                ApkInstaller.handToInstaller(hostContext, atakFile);
+                            } catch (Exception e) {
+                                ApkInstaller.discard(atakFile);
+                                clearInstalling();
+                                statusView.setText("Could not start the installer: " + e.getMessage());
+                            }
                             return;
                         }
                         // Step one: the market's own new build. Step two runs

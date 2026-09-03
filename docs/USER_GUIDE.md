@@ -1,12 +1,12 @@
 # TAKwerx Market for ATAK — User Guide
 
-**Version 1.0 · takwerx**
+**Version 1.1 · takwerx**
 
-**Download TAKwerx Market 1.0** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.1** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.0/ATAK-Plugin-TakwerxMarket-1.0--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.0/ATAK-Plugin-TakwerxMarket-1.0--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.0/ATAK-Plugin-TakwerxMarket-1.0--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.1/ATAK-Plugin-TakwerxMarket-1.1--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.1/ATAK-Plugin-TakwerxMarket-1.1--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.1/ATAK-Plugin-TakwerxMarket-1.1--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -180,7 +180,10 @@ other; Update replaces it and ATAK asks to load the new one.
 ### Updating ATAK itself
 
 When a newer ATAK-CIV is out, the market shows it as a row of its own, above
-the plugins, with an **Update** button.
+the plugins, with an **Update** button. If more than one newer release is
+available the row says so, and Update asks which one you want. A same-release
+update, 5.7.0.5 to 5.7.0.14 say, is simpler: ATAK alone goes to Android, and
+the market and your plugins keep working as they are.
 
 ![The ATAK-CIV row above the plugins, offering 5.8.0.4, with Update all beside it](screenshots/19-atak-row.png)
 

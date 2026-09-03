@@ -1,10 +1,10 @@
 ATAK Plugin — TAKwerx Market
 
-**Download TAKwerx Market 1.0** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.1** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.0/ATAK-Plugin-TakwerxMarket-1.0--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.0/ATAK-Plugin-TakwerxMarket-1.0--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.0/ATAK-Plugin-TakwerxMarket-1.0--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.1/ATAK-Plugin-TakwerxMarket-1.1--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.1/ATAK-Plugin-TakwerxMarket-1.1--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.1/ATAK-Plugin-TakwerxMarket-1.1--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -51,7 +51,7 @@ market pins that signature for ATAK's package before Android is asked.
 _________________________________________________________________
 STATUS
 
-Version 1.0. Tenth submission.
+Version 1.1. Eleventh submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -150,6 +150,16 @@ phone it would break: if there are vector tile packages in atak/imagery, the
 5.8 update is not offered, and the message says why and that a fix is being
 waited on. The market moves nobody's files. The check is by target release
 rather than build number until a fixed 5.8 is confirmed.
+
+1.1 lets the operator choose the ATAK. The catalog carries every ATAK-CIV
+release we host, newest first; the pane still shows one ATAK row, and when
+more than one release is newer than the phone's, Update asks which. A phone
+on 5.6 can take 5.7, the safe landing while 5.8 has its vector-tile problem.
+A same-release update (5.7.0.5 to 5.7.0.14) skips the market's own
+reinstall, since the plugin-api does not change and the market on the phone
+is already the right build; ATAK goes straight to Android. The 5.8 block now
+says the way out, and a row for a plugin built for another ATAK reads
+"0.1 → 0.5 · built for 5.7.0.CIV" instead of pairing a version with a release.
 
 _________________________________________________________________
 POINT OF CONTACTS

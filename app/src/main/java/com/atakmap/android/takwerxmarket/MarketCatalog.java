@@ -97,6 +97,44 @@ public final class MarketCatalog {
             else
                 Log.w(TAG, "unable to parse a catalog line");
         }
+        return collapseAtak(out);
+    }
+
+    /**
+     * The catalog may list several ATAK releases (5.8.0.4 and 5.7.0.14, say),
+     * so that a phone can choose a target -- 5.7 being the safe one while 5.8
+     * has its vector-tile problem. The pane still shows ONE ATAK row: the
+     * newest, with the others folded under it as alternatives. Two rows for
+     * one package would also count as two updates on the badge.
+     */
+    static List<MarketEntry> collapseAtak(List<MarketEntry> in) {
+        List<MarketEntry> ataks = new ArrayList<>();
+        for (MarketEntry e : in)
+            if (e.isAtak())
+                ataks.add(e);
+        if (ataks.size() < 2)
+            return in;
+        Collections.sort(ataks, new Comparator<MarketEntry>() {
+            @Override
+            public int compare(MarketEntry a, MarketEntry b) {
+                return PluginVersion.compare(b.version, a.version);   // newest first
+            }
+        });
+        // Fold only rows of the SAME package under the newest of that package.
+        // A row for some other "com.atakmap.app.*" package must not become the
+        // front for the real one: it would carry no installed version, and the
+        // rollback check downstream compares against that.
+        MarketEntry newest = ataks.get(0);
+        List<MarketEntry> out = new ArrayList<>();
+        for (MarketEntry e : in) {
+            if (!e.isAtak() || e == newest) {
+                out.add(e);
+            } else if (e.packageName.equals(newest.packageName)) {
+                newest.alternatives.add(e);
+            } else {
+                out.add(e);                     // different package: its own row
+            }
+        }
         return out;
     }
 

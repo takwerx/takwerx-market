@@ -196,6 +196,21 @@ public class MarketAdapter extends BaseAdapter {
                     status.setText(from != null && from.equals(to)
                             ? from + "  ·  built for " + a + "  →  " + b
                             : from + "  →  " + to + "  ·  built for " + a);
+                } else if (e.isAtak() && !e.alternatives.isEmpty()) {
+                    // More than one target on offer; the newest leads and the
+                    // choice comes when Update is tapped.
+                    StringBuilder sb = new StringBuilder(PluginVersion.number(e.installedVersion))
+                            .append("  →  ").append(PluginVersion.number(e.version));
+                    String or = null;
+                    for (MarketEntry alt : e.alternatives) {
+                        if (PluginVersion.isNewer(alt.version, e.installedVersion)) {
+                            or = PluginVersion.number(alt.version);
+                            break;
+                        }
+                    }
+                    if (or != null)
+                        sb.append("  ·  or ").append(or);
+                    status.setText(sb);
                 } else {
                     status.setText(withLoadState(
                             PluginVersion.number(e.installedVersion) + "  →  "

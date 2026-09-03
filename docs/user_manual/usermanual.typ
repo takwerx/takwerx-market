@@ -3,7 +3,7 @@
 
 #show: userguide.with(
    plugin-name: "TAKwerx Market",
-   plugin-version: "1.0",
+   plugin-version: "1.1",
    platform: "ATAK",
    platform-version: "5.8.0",
 )
@@ -212,8 +212,12 @@ elevation and cameras are still there for the next install.
   #image("19-atak-row.png", width: 92%)
 ][
   When a newer ATAK-CIV is out, the market shows it as a row of its own, above
-  the plugins, with an *Update* button. Tap it and read the warning, because
-  this one restarts ATAK.
+  the plugins, with an *Update* button. If more than one newer release is
+  available the row says so, and Update asks which one you want. Read the
+  warning, because this one restarts ATAK.
+
+  A same-release update, 5.7.0.5 to 5.7.0.14 say, is simpler: ATAK alone goes
+  to Android, and the market and your plugins keep working as they are.
 
   The market downloads ATAK (about 370 MB), then its own build for the new
   ATAK, and checks both. Then two Android prompts, back to back: first the
@@ -230,13 +234,6 @@ elevation and cameras are still there for the next install.
   is the version it was told, before Android ever sees it. An ATAK that did
   not come from tak.gov cannot be updated from here, and the market says so.
 
-  == Vector tile packages and ATAK 5.8
-
-  ATAK 5.8.0.4 does not start with a vector tile package (Map Depot's
-  public-lands maps) on the phone. If you have any, the market will not offer
-  the 5.8 update, and says so. It comes back when tak.gov ships a fixed ATAK.
-  To update anyway, remove the packages from the phone first (Map Depot's
-  Offline Public Lands list can delete them), then tap Update again.
 ]
 ]
 
@@ -256,6 +253,14 @@ elevation and cameras are still there for the next install.
   *Installed* with the new version, and the count leaves the toolbar icon.
   Nothing you had downloaded into ATAK was touched: maps, elevation and
   cameras are all still there.
+
+  == Vector tile packages and ATAK 5.8
+
+  ATAK 5.8.0.4 does not start with a vector tile package (Map Depot's
+  public-lands maps) on the phone. If you have any, the market will not offer
+  the 5.8 update, and says so. It comes back when tak.gov ships a fixed ATAK.
+  To update anyway, remove the packages from the phone first (Map Depot's
+  Offline Public Lands list can delete them), then tap Update again.
 ]
 ]
 

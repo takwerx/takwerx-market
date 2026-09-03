@@ -208,6 +208,15 @@ public final class ApkInstaller {
                         + (pi == null ? "unreadable" : pi.packageName) + "), so it was not installed."));
             }
             if (entry.isAtak()) {
+                // This code runs inside ATAK, so ATAK's own row always has an
+                // installed version. A null here means the row is not really
+                // ATAK's package, and the "newer than installed" check below
+                // would pass against nothing. Refuse.
+                if (entry.installedVersion == null) {
+                    delete(apk);
+                    return new Fetched(null, new Result(false, "Refusing to treat "
+                            + entry.packageName + " as ATAK: no installed version to compare."));
+                }
                 String fileCore = AtakTarget.coreVersion(pi.versionName);
                 String rowCore = AtakTarget.coreVersion(entry.version);
                 if (fileCore == null || !fileCore.equals(rowCore)) {
