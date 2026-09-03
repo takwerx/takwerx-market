@@ -1,12 +1,12 @@
 # TAKwerx Market for ATAK — User Guide
 
-**Version 0.7 · takwerx**
+**Version 0.8 · takwerx**
 
-**Download TAKwerx Market 0.7** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 0.8** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v0.7/ATAK-Plugin-TakwerxMarket-0.7--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v0.7/ATAK-Plugin-TakwerxMarket-0.7--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v0.7/ATAK-Plugin-TakwerxMarket-0.7--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v0.8/ATAK-Plugin-TakwerxMarket-0.8--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v0.8/ATAK-Plugin-TakwerxMarket-0.8--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v0.8/ATAK-Plugin-TakwerxMarket-0.8--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -159,6 +159,16 @@ count leaves the toolbar icon, and no row has a button.
 If everything you have is current but some plugins are not installed, the header
 says **No updates** and how many are not installed, so *all* is only ever said
 when it means all.
+
+### After an ATAK upgrade
+
+Move from ATAK 5.7 to 5.8 and every plugin you had is still installed but was
+built for 5.7, so ATAK marks it incompatible and it will not load. Get the 5.8
+market from the downloads above, and each of those plugins shows up amber as
+**built for 5.7.0.CIV → 5.8.0.CIV** with an **Update** button. One tap each and
+you are moved over.
+
+![After an ATAK upgrade: Cam Depot 1.1 built for 5.7.0.CIV, offered the 5.8.0.CIV build](screenshots/18-after-atak-upgrade.png)
 
 ### "signed with a different key"
 

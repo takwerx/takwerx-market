@@ -181,9 +181,22 @@ public class MarketAdapter extends BaseAdapter {
 
         switch (s) {
             case UPDATE_AVAILABLE:
-                status.setText(withLoadState(
-                        PluginVersion.number(e.installedVersion) + "  →  "
-                                + PluginVersion.number(e.version), e.loaded));
+                if (e.installedForOtherAtak(pluginApi)) {
+                    // Same number, wrong ATAK: say what actually differs. No
+                    // load state, because a build for another ATAK cannot
+                    // be loaded and "UNLOADED" would read as something to fix.
+                    String from = PluginVersion.number(e.installedVersion);
+                    String to = PluginVersion.number(e.version);
+                    String a = MarketEntry.atakOf(e.installedPluginApi);
+                    String b = MarketEntry.atakOf(pluginApi);
+                    status.setText(from != null && from.equals(to)
+                            ? from + "  ·  built for " + a + "  →  " + b
+                            : from + " for " + a + "  →  " + to + " for " + b);
+                } else {
+                    status.setText(withLoadState(
+                            PluginVersion.number(e.installedVersion) + "  →  "
+                                    + PluginVersion.number(e.version), e.loaded));
+                }
                 status.setTextColor(AMBER);
                 action.setText(R.string.market_update);
                 action.setEnabled(true);

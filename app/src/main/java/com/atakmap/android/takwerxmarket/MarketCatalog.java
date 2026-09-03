@@ -159,11 +159,23 @@ public final class MarketCatalog {
             e.installed = false;
             e.installedRevision = -1;
             e.installedVersion = null;
+            e.installedPluginApi = null;
             try {
                 PackageInfo pi = pm.getPackageInfo(e.packageName, 0);
                 e.installed = true;
                 e.installedRevision = pi.versionCode;
                 e.installedVersion = pi.versionName;
+                // Which ATAK the installed build was made for. Same manifest
+                // meta-data ATAK itself reads to decide whether a plugin loads.
+                try {
+                    android.content.pm.ApplicationInfo ai = pm.getApplicationInfo(
+                            e.packageName, PackageManager.GET_META_DATA);
+                    if (ai.metaData != null)
+                        e.installedPluginApi = ai.metaData.getString("plugin-api");
+                } catch (Exception meta) {
+                    // Unknown target is treated as matching; the version
+                    // comparison still applies.
+                }
             } catch (PackageManager.NameNotFoundException nf) {
                 // not installed; the default already says so
             }

@@ -3,7 +3,7 @@
 
 #show: userguide.with(
    plugin-name: "TAKwerx Market",
-   plugin-version: "0.7",
+   plugin-version: "0.8",
    platform: "ATAK",
    platform-version: "5.8.0",
 )
@@ -159,8 +159,8 @@ elevation and cameras are still there for the next install.
 #tak-slide[
 = All up to date
 
-#toolbox.side-by-side(columns: (5fr, 6fr))[
-  #image("14-all-up-to-date.png", width: 100%)
+#toolbox.side-by-side(columns: (4fr, 7fr))[
+  #image("14-all-up-to-date.png", width: 92%)
 ][
   When every plugin is installed and current the header says so in green, the
   count leaves the toolbar icon, and no row has a button.
@@ -177,6 +177,27 @@ elevation and cameras are still there for the next install.
   the market offers to uninstall the one you have; then install from the
   market. This is Android's rule, not the market's, and the market stops you
   before Android shows its own less helpful message.
+]
+]
+
+#tak-slide[
+= After an ATAK upgrade
+
+#toolbox.side-by-side(columns: (4fr, 7fr))[
+  #image("18-after-atak-upgrade.png", width: 92%)
+][
+  Move from ATAK 5.7 to 5.8 and every plugin you had is still installed but
+  was built for 5.7, so ATAK marks it incompatible and it will not load. It is
+  not obvious what to do about that from ATAK's own package manager.
+
+  Get the 5.8 market from the same place you got this one and open it. Each of
+  those plugins shows up amber as *built for 5.7.0.CIV → 5.8.0.CIV* with an
+  *Update* button, and the count on the toolbar icon includes them. One tap
+  each, the same three screens as any update, and you are moved over.
+
+  The market knows because it reads the ATAK release each installed plugin
+  was built for, not just its version number. The number alone would say
+  nothing had changed.
 ]
 ]
 

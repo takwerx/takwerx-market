@@ -48,6 +48,34 @@ public class MarketEntry {
     public int installedRevision = -1;
     public String installedVersion;
 
+    /**
+     * The plugin-api the INSTALLED APK declares, e.g. "com.atakmap.app@5.7.0.CIV",
+     * or null when it could not be read. Distinct from takRequirement, which is
+     * what the catalog's build declares.
+     */
+    public String installedPluginApi;
+
+    /**
+     * Installed, but built for an ATAK other than the one running. Such a
+     * plugin cannot load here whatever its version number says, and ATAK's own
+     * package manager marks it incompatible. The version comparison alone
+     * cannot see this: after an ATAK upgrade from 5.7 to 5.8, PLSS 0.5 built
+     * for 5.7 and the catalog's 0.5 built for 5.8 are the same number, and the
+     * row would go green over a plugin that will never load again.
+     */
+    public boolean installedForOtherAtak(String runningPluginApi) {
+        return installed && installedPluginApi != null && runningPluginApi != null
+                && !installedPluginApi.equalsIgnoreCase(runningPluginApi);
+    }
+
+    /** "com.atakmap.app@5.7.0.CIV" -> "5.7.0.CIV"; null -> null. */
+    public static String atakOf(String pluginApi) {
+        if (pluginApi == null)
+            return null;
+        int at = pluginApi.indexOf('@');
+        return at < 0 ? pluginApi : pluginApi.substring(at + 1);
+    }
+
     public MarketEntry(String platform, String type, String packageName, String label,
             String version, int revision, String apkPath, String iconPath,
             String description, String hash, int osRequirement, String takRequirement,
@@ -94,6 +122,11 @@ public class MarketEntry {
             return Status.INCOMPATIBLE;
         if (!installed)
             return Status.NOT_INSTALLED;
+        // The catalog's build for THIS ATAK replaces a build for another one,
+        // whatever the numbers say. Android accepts the replace: same package,
+        // same signer, and tak.gov builds all carry versionCode 1.
+        if (installedForOtherAtak(runningPluginApi))
+            return Status.UPDATE_AVAILABLE;
         return PluginVersion.isNewer(version, installedVersion)
                 ? Status.UPDATE_AVAILABLE
                 : Status.INSTALLED;

@@ -1,10 +1,10 @@
 ATAK Plugin — TAKwerx Market
 
-**Download TAKwerx Market 0.7** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 0.8** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v0.7/ATAK-Plugin-TakwerxMarket-0.7--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v0.7/ATAK-Plugin-TakwerxMarket-0.7--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v0.7/ATAK-Plugin-TakwerxMarket-0.7--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v0.8/ATAK-Plugin-TakwerxMarket-0.8--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v0.8/ATAK-Plugin-TakwerxMarket-0.8--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v0.8/ATAK-Plugin-TakwerxMarket-0.8--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -44,7 +44,7 @@ this plugin distributes nothing.
 _________________________________________________________________
 STATUS
 
-Version 0.7. Seventh submission.
+Version 0.8. Eighth submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -101,6 +101,17 @@ ones in the manual. 0.7 is the manual itself -- every screen the operator will
 meet, taken on that device -- plus two words: the header only says "All up to
 date" when every listed plugin is installed, and otherwise says how many are
 not; and the Tool Preferences summary spells the name the same way as the rest.
+
+0.8 closes the case the plugin exists for and 0.7 got wrong. After an ATAK
+upgrade, say 5.7 to 5.8, every plugin on the device is still installed but was
+built for the old release; ATAK marks them incompatible and they never load.
+0.7 compared version numbers only, so PLSS 0.5 built for 5.7 matched the
+catalog's 0.5 built for 5.8 and the row went green over a plugin that would
+never load again. The market now also reads the ATAK target the installed APK
+declares, and a build for another ATAK is offered the build for this one:
+"1.1 · built for 5.7.0.CIV → 5.8.0.CIV", counted on the badge, replaced in
+place. Verified on ATAK-CIV 5.8.0.3 with a tak.gov 5.7 build of Cam Depot
+installed: offered, replaced through Android's installer, one load prompt.
 
 _________________________________________________________________
 POINT OF CONTACTS
