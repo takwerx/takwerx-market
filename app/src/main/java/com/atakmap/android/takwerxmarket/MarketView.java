@@ -302,8 +302,19 @@ public class MarketView implements MarketAdapter.ActionListener {
             // plugins offered and none installed there are zero updates, but
             // nothing is up to date either, and saying so would be a lie told in
             // green — the one colour an operator will not stop to question.
+            //
+            // The same lie in a smaller size: "All up to date" while two of the
+            // four were not installed at all read as wrong on the S22, because
+            // "all" is heard as all four. So it is only said when every plugin
+            // offered is on the device; otherwise the line says what is missing.
             int at = sb.length();
-            sb.append("\nAll up to date");
+            int missing = offered - installed;
+            if (missing <= 0) {
+                sb.append("\nAll up to date");
+            } else {
+                sb.append("\nNo updates  \u00b7  ").append(String.valueOf(missing))
+                        .append(" not installed");
+            }
             sb.setSpan(new ForegroundColorSpan(GREEN), at, sb.length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }

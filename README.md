@@ -1,5 +1,16 @@
 ATAK Plugin — TAKwerx Market
 
+**Download TAKwerx Market 0.7** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v0.7/ATAK-Plugin-TakwerxMarket-0.7--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v0.7/ATAK-Plugin-TakwerxMarket-0.7--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v0.7/ATAK-Plugin-TakwerxMarket-0.7--5.8.0-civ-release.apk
+
+All releases: https://github.com/takwerx/takwerx-market/releases
+
+**User guide with screenshots: [docs/USER_GUIDE.md](docs/USER_GUIDE.md)**
+(https://github.com/takwerx/takwerx-market/blob/main/docs/USER_GUIDE.md)
+
 _________________________________________________________________
 PURPOSE AND CAPABILITIES
 
@@ -33,7 +44,7 @@ this plugin distributes nothing.
 _________________________________________________________________
 STATUS
 
-Version 0.6. Sixth submission.
+Version 0.7. Seventh submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -84,6 +95,12 @@ toolbar count going 3, 2, 1, gone as they were applied. 0.6 is wording from
 that session: the header is two lines, the count of plugins for this ATAK and
 under it "N updates available" or "All up to date"; and the startup notice
 spells the plugin's name the way the plugin does.
+
+0.6 was confirmed the same way on ATAK-CIV 5.7.0.5, and its screenshots are the
+ones in the manual. 0.7 is the manual itself -- every screen the operator will
+meet, taken on that device -- plus two words: the header only says "All up to
+date" when every listed plugin is installed, and otherwise says how many are
+not; and the Tool Preferences summary spells the name the same way as the rest.
 
 _________________________________________________________________
 POINT OF CONTACTS

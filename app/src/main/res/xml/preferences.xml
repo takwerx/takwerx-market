@@ -10,6 +10,6 @@
     <com.atakmap.android.gui.PanPreference
         android:key="manual"
         android:title="Plugin Documentation"
-        android:summary="Open the TAKWERX Market user guide" />
+        android:summary="Open the TAKwerx Market user guide" />
 
 </PreferenceScreen>
