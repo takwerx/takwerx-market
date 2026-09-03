@@ -1,11 +1,6 @@
 package com.atakmap.android.takwerxmarket;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-
-import androidx.core.content.FileProvider;
-
 import com.atakmap.coremap.log.Log;
 
 import java.io.File;
@@ -81,7 +76,8 @@ public final class ApkInstaller {
      * thread. The installer prompt itself is Android's and cannot be bypassed.
      */
     public static Result fetchAndInstall(Context hostContext, String baseUrl,
-            MarketEntry entry, MarketHttp.Progress progress) {
+            MarketEntry entry, MarketHttp.Progress progress,
+            SessionInstaller.Callback onInstalled) {
 
         File dir = downloadDir(hostContext);
         if (!dir.exists() && !dir.mkdirs())
@@ -139,7 +135,13 @@ public final class ApkInstaller {
                         + " Android will not replace it.", true);
             }
 
-            launchInstaller(hostContext, apk);
+            // Everything above is a reason to refuse. Past this point the file
+            // is verified and Android takes over, reporting back to onInstalled.
+            SessionInstaller.install(hostContext, apk, entry.label, onInstalled);
+
+            // The session has already read the file, so nothing needs it now.
+            // Previously a verified APK sat on disk until the next ATAK start.
+            delete(apk);
             return new Result(true, null);
 
         } catch (IOException e) {
@@ -151,17 +153,6 @@ public final class ApkInstaller {
             Log.e(TAG, "install failed for " + entry.packageName, e);
             return new Result(false, "Could not start the installer: " + e.getMessage());
         }
-    }
-
-    private static void launchInstaller(Context hostContext, File apk) {
-        String authority = hostContext.getPackageName() + ".provider";
-        Uri uri = FileProvider.getUriForFile(hostContext, authority, apk);
-
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setDataAndType(uri, "application/vnd.android.package-archive");
-        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        hostContext.startActivity(i);
     }
 
     /**

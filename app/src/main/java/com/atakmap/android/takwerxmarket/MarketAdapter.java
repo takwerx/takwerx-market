@@ -60,6 +60,21 @@ public class MarketAdapter extends BaseAdapter {
     private String downloadingPackage;
     private int downloadPercent;
 
+    /** Package handed to Android and awaiting its verdict, or null. */
+    private String installingPackage;
+
+    /**
+     * Between the hand-off and Android's verdict. Worth saying on the row
+     * because ATAK toasts "uninstalled" partway through a replace, and a row
+     * that says "Installing…" at that moment is the thing that makes it read as
+     * a step rather than a failure.
+     */
+    public void setInstalling(String packageName) {
+        this.installingPackage = packageName;
+        this.downloadingPackage = null;
+        notifyDataSetChanged();
+    }
+
     /**
      * @param packageName the plugin being fetched, or null when nothing is
      * @param percent 0-100, or -1 when the server did not declare a length
@@ -67,6 +82,8 @@ public class MarketAdapter extends BaseAdapter {
     public void setDownloading(String packageName, int percent) {
         this.downloadingPackage = packageName;
         this.downloadPercent = percent;
+        if (packageName == null)
+            this.installingPackage = null;
         notifyDataSetChanged();
     }
 
@@ -144,12 +161,20 @@ public class MarketAdapter extends BaseAdapter {
             desc.setText(e.description);
         }
 
-        // Read the load state HERE rather than trusting what the last refresh
-        // stored. Installing and uninstalling raise package broadcasts we can
-        // listen for; loading and unloading raise nothing at all, so a plugin
-        // loaded from ATAK's own prompt or its package manager left this badge
-        // claiming the opposite with nothing able to correct it. It is a set
-        // lookup, so doing it per row costs nothing worth having a stale badge for.
+        // Read what is on the device HERE rather than trusting what the last
+        // refresh stored.
+        //
+        // The package broadcasts this pane listens for are an optimisation, not
+        // the source of truth: measured on official ATAK 5.7, a plugin was
+        // uninstalled and the row still read "Installed 1.1" because no
+        // broadcast arrived to trigger the re-read. Loading and unloading raise
+        // nothing at all in the first place. Anything that redraws the row --
+        // a scroll, a refresh, reopening the pane -- now corrects it, and
+        // correctness no longer depends on a message turning up.
+        //
+        // Two lookups per row per draw. A handful of rows makes that far cheaper
+        // than being wrong about what is installed.
+        MarketCatalog.resolveInstalled(pluginContext, java.util.Collections.singletonList(e));
         e.loaded = e.installed ? PluginControl.isLoaded(e.packageName) : null;
 
         MarketEntry.Status s = e.status(pluginApi);
@@ -194,7 +219,15 @@ public class MarketAdapter extends BaseAdapter {
                 break;
         }
 
-        if (downloading) {
+        if (e.packageName.equals(installingPackage)) {
+            status.setText("Installing\u2026");
+            status.setTextColor(AMBER);
+            desc.setVisibility(View.GONE);
+            progress.setVisibility(View.VISIBLE);
+            progress.setIndeterminate(true);
+            action.setEnabled(false);
+            action.setVisibility(View.INVISIBLE);
+        } else if (downloading) {
             // Overrides whatever the switch just wrote. A bar alone is not
             // enough: three megabytes on a good connection is gone in about a
             // second, which reads as a flicker rather than as progress and
