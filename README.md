@@ -33,7 +33,7 @@ this plugin distributes nothing.
 _________________________________________________________________
 STATUS
 
-Version 0.3. Third submission.
+Version 0.4. Fourth submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -51,13 +51,21 @@ after an update, and download progress that lived in a header where it could not
 say which row was busy. Both confirmed working on ATAK-CIV 5.7.0.5, along with a
 clean install and a replace-in-place update.
 
-0.3 changes how the APK is handed to Android. Previously the plugin never
+0.3 changed how the APK is handed to Android. Previously the plugin never
 learned the outcome of an install, so the list depended on package broadcasts to
 notice -- and on Android 14 those did not reliably arrive, leaving a row
 claiming a plugin was installed after it had been removed. Installing through a
 PackageInstaller session reports the result back, so the row is correct without
 a refresh. Android's confirmation prompt is unchanged; its separate completion
-screen is not shown, so an install is one dialog rather than two.
+screen is not shown, so an install is one dialog rather than two. Confirmed on
+ATAK-CIV 5.7.0.5: uninstalling with the list open corrects it immediately, where
+before the row went on claiming the plugin was installed.
+
+0.4 finishes the same problem at the other end. Loading a plugin raises no
+broadcast at all, so after an update the loaded indicator stayed wrong until
+something happened to redraw it. ATAK does record it -- it writes a preference
+per plugin -- and watching that gives the missing event. The number of available
+updates now also appears on the toolbar icon, the way ATAK badges its own tools.
 
 _________________________________________________________________
 POINT OF CONTACTS

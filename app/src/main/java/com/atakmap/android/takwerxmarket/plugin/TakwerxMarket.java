@@ -13,6 +13,7 @@ import com.atakmap.android.takwerxmarket.MarketCatalog;
 import com.atakmap.android.takwerxmarket.MarketPreferenceFragment;
 import com.atakmap.android.takwerxmarket.MarketEntry;
 import com.atakmap.android.takwerxmarket.MarketView;
+import com.atakmap.android.takwerxmarket.ToolbarBadge;
 import com.atakmap.app.preferences.ToolsPreferenceFragment;
 import com.atakmap.coremap.log.Log;
 
@@ -65,6 +66,7 @@ public class TakwerxMarket implements IPlugin {
     Pane marketPane;
 
     private MarketView marketView;
+    private ToolbarBadge badge;
 
     public TakwerxMarket(IServiceController serviceController) {
         this.serviceController = serviceController;
@@ -77,12 +79,17 @@ public class TakwerxMarket implements IPlugin {
 
         uiService = serviceController.getService(IHostUIService.class);
 
-        toolbarItem = new ToolbarItem.Builder(
-                pluginContext.getString(R.string.app_name),
-                MarshalManager.marshal(
-                        pluginContext.getResources().getDrawable(R.drawable.ic_toolbar),
-                        android.graphics.drawable.Drawable.class,
-                        gov.tak.api.commons.graphics.Bitmap.class))
+        badge = new ToolbarBadge(pluginContext,
+                pluginContext.getResources().getDrawable(R.drawable.ic_toolbar));
+
+        Object icon = badge.icon();
+        ToolbarItem.Builder builder = (icon instanceof gov.tak.api.commons.graphics.Drawable)
+                ? new ToolbarItem.Builder(pluginContext.getString(R.string.app_name),
+                        (gov.tak.api.commons.graphics.Drawable) icon)
+                : new ToolbarItem.Builder(pluginContext.getString(R.string.app_name),
+                        (gov.tak.api.commons.graphics.Bitmap) icon);
+
+        toolbarItem = builder
                 .setListener(new ToolbarItemAdapter() {
                     @Override
                     public void onClick(ToolbarItem item) {
@@ -216,6 +223,15 @@ public class TakwerxMarket implements IPlugin {
                     List<MarketEntry> entries = MarketCatalog.fetch(baseUrl(), api);
                     MarketCatalog.resolveInstalled(host, entries);
                     final int updates = MarketCatalog.countUpdates(entries, api);
+
+                    new android.os.Handler(host.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (badge != null)
+                                badge.setCount(updates);
+                        }
+                    });
+
                     if (updates <= 0)
                         return;
 

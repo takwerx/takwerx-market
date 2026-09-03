@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -53,6 +55,46 @@ public class MarketView implements MarketAdapter.ActionListener {
 
     /** Package handed to Android and not yet reported back on. */
     private String installing;
+
+    /**
+     * Loading a plugin raises no broadcast, so there was nothing to notice when
+     * ATAK loaded something after an install — the row kept saying UNLOADED
+     * until it happened to be redrawn. ATAK does record it though: it writes a
+     * preference per plugin, keyed on AtakPluginRegistry.pluginLoadedBasename
+     * ("plugin.version.loaded."), and a preference change is observable.
+     *
+     * Match on the PREFIX only. Measured 2026-09-02, the key is suffixed with
+     * the plugin's display name, not its package -- "plugin.version.loaded.Cam
+     * Depot". Matching on package name would compile, read sensibly, and never
+     * once fire.
+     *
+     * Held in a field on purpose. SharedPreferences keeps only a weak reference
+     * to its listeners, so one that is not retained is collected and simply
+     * stops firing, with nothing to indicate why.
+     */
+    private final SharedPreferences.OnSharedPreferenceChangeListener loadWatcher =
+            new SharedPreferences.OnSharedPreferenceChangeListener() {
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                    if (key == null || !key.startsWith(loadedKeyPrefix()))
+                        return;
+                    root.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshInstalledState();
+                        }
+                    });
+                }
+            };
+
+    /** ATAK's own constant where it can be reached, its literal value otherwise. */
+    private static String loadedKeyPrefix() {
+        try {
+            return com.atak.plugins.impl.AtakPluginRegistry.pluginLoadedBasename;
+        } catch (Throwable t) {
+            return "plugin.version.loaded.";
+        }
+    }
 
     /**
      * Keeps the rows honest while the pane stays open.
@@ -107,14 +149,27 @@ public class MarketView implements MarketAdapter.ActionListener {
         f.addAction(Intent.ACTION_PACKAGE_REPLACED);
         f.addDataScheme("package");
         hostContext.registerReceiver(packageWatcher, f);
+
+        try {
+            PreferenceManager.getDefaultSharedPreferences(hostContext)
+                    .registerOnSharedPreferenceChangeListener(loadWatcher);
+        } catch (Exception e) {
+            Log.d(TAG, "could not watch plugin load state: " + e.getMessage());
+        }
     }
 
-    /** Called when the plugin stops. Leaving the receiver registered leaks it. */
+    /** Called when the plugin stops. Leaving these registered leaks them. */
     public void dispose() {
         try {
             hostContext.unregisterReceiver(packageWatcher);
         } catch (Exception e) {
             Log.d(TAG, "package watcher was not registered");
+        }
+        try {
+            PreferenceManager.getDefaultSharedPreferences(hostContext)
+                    .unregisterOnSharedPreferenceChangeListener(loadWatcher);
+        } catch (Exception e) {
+            Log.d(TAG, "load watcher was not registered");
         }
     }
 
