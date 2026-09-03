@@ -162,6 +162,24 @@ public class TakwerxMarket implements IPlugin {
         Context host = hostContext();
         if (host == null)
             return DEFAULT_BASE_URL;
+        // DEBUG only: a one-line file a developer can push over adb, since the
+        // preference screen for this no longer exists. Release builds never
+        // reach this method past the first line.
+        try {
+            java.io.File f = new java.io.File(android.os.Environment.getExternalStorageDirectory(),
+                    "atak/tools/takwerxmarket/catalog-url.txt");
+            if (f.isFile()) {
+                java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader(f));
+                String line = r.readLine();
+                r.close();
+                if (line != null && line.trim().startsWith("https://")) {
+                    Log.w(TAG, "DEBUG build: catalog from " + f.getName());
+                    return line.trim();
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "no catalog-url.txt override");
+        }
         try {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(host);
             String url = prefs.getString(PREF_BASE_URL, null);
