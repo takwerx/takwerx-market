@@ -179,10 +179,17 @@ public class MarketView implements MarketAdapter.ActionListener {
         if (busy)
             return;
         queue.clear();
+        MarketEntry self = null;
         for (MarketEntry e : entries) {
-            if (!e.isAtak() && e.status(pluginApi) == MarketEntry.Status.UPDATE_AVAILABLE)
+            if (e.isAtak() || e.status(pluginApi) != MarketEntry.Status.UPDATE_AVAILABLE)
+                continue;
+            if (e.packageName.equals(pluginContext.getPackageName()))
+                self = e;                    // last: replacing the market ends this queue
+            else
                 queue.add(e);
         }
+        if (self != null)
+            queue.add(self);
         startNext();
     }
 

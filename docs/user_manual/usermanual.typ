@@ -198,6 +198,10 @@ elevation and cameras are still there for the next install.
   The market knows because it reads the ATAK release each installed plugin
   was built for, not just its version number. The number alone would say
   nothing had changed.
+
+  If you update ATAK yourself, you sideload the matching market once. If the
+  market updates ATAK (next page), you do not: it puts its own new build on
+  first.
 ]
 ]
 

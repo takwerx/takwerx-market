@@ -170,6 +170,13 @@ you are moved over.
 
 ![After an ATAK upgrade: Cam Depot 1.1 built for 5.7.0.CIV, offered the 5.8.0.CIV build](screenshots/18-after-atak-upgrade.png)
 
+If you update ATAK yourself, you sideload the matching market once, because the
+market you had was built for the old ATAK and will not load on the new one. If
+the market updates ATAK, you do not: it puts its own new build on first.
+
+The market also updates itself. When a new market is out it is a row like any
+other; Update replaces it and ATAK asks to load the new one.
+
 ### Updating ATAK itself
 
 When a newer ATAK-CIV is out, the market shows it as a row of its own, above
