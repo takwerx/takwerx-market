@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -55,6 +56,20 @@ public class MarketAdapter extends BaseAdapter {
     private final ActionListener listener;
     private final List<MarketEntry> entries = new ArrayList<>();
 
+    /** Package currently downloading, and how far along, or null for none. */
+    private String downloadingPackage;
+    private int downloadPercent;
+
+    /**
+     * @param packageName the plugin being fetched, or null when nothing is
+     * @param percent 0-100, or -1 when the server did not declare a length
+     */
+    public void setDownloading(String packageName, int percent) {
+        this.downloadingPackage = packageName;
+        this.downloadPercent = percent;
+        notifyDataSetChanged();
+    }
+
     public MarketAdapter(Context pluginContext, String pluginApi, ActionListener listener) {
         this.pluginContext = pluginContext;
         this.pluginApi = pluginApi;
@@ -92,6 +107,7 @@ public class MarketAdapter extends BaseAdapter {
         final MarketEntry e = getItem(position);
 
         ImageView icon = row.findViewById(R.id.row_icon);
+        ProgressBar progress = row.findViewById(R.id.row_progress);
         TextView label = row.findViewById(R.id.row_label);
         TextView status = row.findViewById(R.id.row_status);
         TextView desc = row.findViewById(R.id.row_desc);
@@ -108,6 +124,18 @@ public class MarketAdapter extends BaseAdapter {
             icon.setVisibility(View.INVISIBLE);
         }
 
+        boolean downloading = e.packageName.equals(downloadingPackage);
+        if (downloading) {
+            progress.setVisibility(View.VISIBLE);
+            // A server that declares no length gets a moving bar rather than a
+            // bar stuck at zero, which reads as broken.
+            progress.setIndeterminate(downloadPercent < 0);
+            if (downloadPercent >= 0)
+                progress.setProgress(downloadPercent);
+        } else {
+            progress.setVisibility(View.GONE);
+        }
+
         label.setText(e.label);
         if (e.description == null || e.description.length() == 0) {
             desc.setVisibility(View.GONE);
@@ -116,7 +144,16 @@ public class MarketAdapter extends BaseAdapter {
             desc.setText(e.description);
         }
 
+        // Read the load state HERE rather than trusting what the last refresh
+        // stored. Installing and uninstalling raise package broadcasts we can
+        // listen for; loading and unloading raise nothing at all, so a plugin
+        // loaded from ATAK's own prompt or its package manager left this badge
+        // claiming the opposite with nothing able to correct it. It is a set
+        // lookup, so doing it per row costs nothing worth having a stale badge for.
+        e.loaded = e.installed ? PluginControl.isLoaded(e.packageName) : null;
+
         MarketEntry.Status s = e.status(pluginApi);
+
         switch (s) {
             case UPDATE_AVAILABLE:
                 status.setText(withLoadState(
@@ -155,6 +192,20 @@ public class MarketAdapter extends BaseAdapter {
                 action.setVisibility(View.INVISIBLE);
                 action.setEnabled(false);
                 break;
+        }
+
+        if (downloading) {
+            // Overrides whatever the switch just wrote. A bar alone is not
+            // enough: three megabytes on a good connection is gone in about a
+            // second, which reads as a flicker rather than as progress and
+            // leaves the operator unsure the tap registered.
+            status.setText(downloadPercent >= 0
+                    ? "Downloading\u2026  " + downloadPercent + "%"
+                    : "Downloading\u2026");
+            status.setTextColor(AMBER);
+            desc.setVisibility(View.GONE);
+            action.setEnabled(false);
+            action.setVisibility(View.INVISIBLE);
         }
 
         row.setAlpha(s == MarketEntry.Status.INCOMPATIBLE ? 0.45f : 1.0f);

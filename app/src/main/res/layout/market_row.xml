@@ -40,6 +40,19 @@
             android:singleLine="true"
             android:ellipsize="end" />
 
+        <!-- Only visible while this plugin is downloading. It sits on the row so
+             progress is attached to the thing it belongs to, rather than in a
+             header that says nothing about which row is busy. -->
+        <ProgressBar
+            android:id="@+id/row_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="2dp"
+            android:max="100"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/row_desc"
             android:layout_width="match_parent"

@@ -240,18 +240,41 @@ public class MarketView implements MarketAdapter.ActionListener {
             return;
         busy = true;
         refresh.setEnabled(false);
-        statusView.setText("Downloading " + entry.label + " " + entry.version + "…");
+        adapter.setDownloading(entry.packageName, 0);
+
+        // Progress arrives every few kilobytes, which is far more often than a
+        // screen can usefully change. Repaint only when the whole percent moves.
+        final MarketHttp.Progress progress = new MarketHttp.Progress() {
+            private int lastPercent = -2;
+
+            @Override
+            public void onProgress(long bytesRead, long total) {
+                final int pct = total > 0
+                        ? (int) Math.min(100, bytesRead * 100 / total)
+                        : -1;
+                if (pct == lastPercent)
+                    return;
+                lastPercent = pct;
+                root.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.setDownloading(entry.packageName, pct);
+                    }
+                });
+            }
+        };
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 final ApkInstaller.Result r = ApkInstaller.fetchAndInstall(
-                        hostContext, baseUrl, entry, null);
+                        hostContext, baseUrl, entry, progress);
                 root.post(new Runnable() {
                     @Override
                     public void run() {
                         busy = false;
                         refresh.setEnabled(true);
+                        adapter.setDownloading(null, 0);
                         if (r.ok) {
                             paintSummary();
                         } else if (r.signerConflict) {
