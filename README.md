@@ -33,7 +33,7 @@ this plugin distributes nothing.
 _________________________________________________________________
 STATUS
 
-Version 0.4. Fourth submission.
+Version 0.5. Fifth submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -66,6 +66,17 @@ broadcast at all, so after an update the loaded indicator stayed wrong until
 something happened to redraw it. ATAK does record it -- it writes a preference
 per plugin -- and watching that gives the missing event. The number of available
 updates now also appears on the toolbar icon, the way ATAK badges its own tools.
+
+0.5 undoes half of 0.3. Installing through a session makes ATAK the installer
+of record, and Android delivers the package-added event to the installer twice:
+once as everyone gets it and once addressed to the installer. ATAK asks "Load
+plugin?" for each, so every install prompted twice. Measured on ATAK-CIV 5.7.0.5
+by replacing the same signed plugin over itself with the installer of record
+changed and nothing else: one event and one prompt through the system installer,
+two and two with ATAK named. So the APK goes to Android's installer again, as
+ATAK's own package manager does, and the row is kept honest by the package
+broadcast instead of a session result. The toolbar count also now follows the
+list -- before, it was set once at start and stayed there after every update.
 
 _________________________________________________________________
 POINT OF CONTACTS
@@ -150,11 +161,20 @@ DEVELOPER NOTES
   reporting 1 the first manual a user opens is the one they keep. The plugin
   compares the version name itself and removes the stale file first.
 
+  The APK is handed to Android's installer with ACTION_VIEW rather than through
+  a PackageInstaller session, and the reason is measured, not stylistic. A
+  session names the calling app as installer of record, and Android sends that
+  app the package-added broadcast a second time, addressed to it. ATAK raises
+  its "Load plugin?" prompt on each copy. What a session buys -- the outcome,
+  including cancel -- is traded for one prompt instead of two; the row waits
+  on the package broadcast and gives up on its own if nothing arrives.
+
   A downloaded APK is staged in ATAK's internal storage, never external. Under
   Android/data any app holding WRITE_EXTERNAL_STORAGE can write on API 29 and
   below, and PackageInstaller re-reads the file when the operator confirms, so
   external staging would mean the bytes installed need not be the bytes that
-  were verified. It is written to a subdirectory of the path ATAK's own
+  were verified. Internal storage is ATAK's uid only, so nothing outside the
+  process can touch the file between the check and the installer's copy. It is written to a subdirectory of the path ATAK's own
   FileProvider declares, because the startup sweep empties what it is pointed at
   and ATAK keeps its own plugin APKs in that directory.
 

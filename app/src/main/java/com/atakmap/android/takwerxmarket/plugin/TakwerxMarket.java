@@ -185,6 +185,13 @@ public class TakwerxMarket implements IPlugin {
         if (marketPane == null) {
             marketView = new MarketView(pluginContext, host, baseUrl(),
                     AtakTarget.pluginApi(host, pluginContext));
+            marketView.setUpdateCountListener(new MarketView.UpdateCountListener() {
+                @Override
+                public void onUpdateCount(int updates) {
+                    if (badge != null)
+                        badge.setCount(updates);
+                }
+            });
 
             marketPane = new PaneBuilder(marketView.getRoot())
                     .setMetaValue(Pane.RELATIVE_LOCATION, Pane.Location.Default)

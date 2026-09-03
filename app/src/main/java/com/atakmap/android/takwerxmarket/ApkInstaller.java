@@ -1,6 +1,8 @@
 package com.atakmap.android.takwerxmarket;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import com.atakmap.coremap.log.Log;
 
 import java.io.File;
@@ -37,9 +39,14 @@ public final class ApkInstaller {
 
     private static final String TAG = "TakwerxMarket.Install";
 
-    /** Under ATAK's files dir, inside the path its FileProvider already exposes. */
-    private static final String DOWNLOAD_DIR =
-            "linked-user-resources/plugins/apks/takwerxmarket";
+    /**
+     * ATAK's res/xml/provider_paths.xml declares this files-path under the name
+     * PROVIDER_NAME. The market writes into its own subdirectory of it.
+     */
+    private static final String PROVIDER_PATH = "linked-user-resources/plugins/apks";
+    private static final String PROVIDER_NAME = "eud-plugin-apks";
+    private static final String SUBDIR = "takwerxmarket";
+    private static final String DOWNLOAD_DIR = PROVIDER_PATH + "/" + SUBDIR;
 
     private ApkInstaller() {
     }
@@ -76,8 +83,7 @@ public final class ApkInstaller {
      * thread. The installer prompt itself is Android's and cannot be bypassed.
      */
     public static Result fetchAndInstall(Context hostContext, String baseUrl,
-            MarketEntry entry, MarketHttp.Progress progress,
-            SessionInstaller.Callback onInstalled) {
+            MarketEntry entry, MarketHttp.Progress progress) {
 
         File dir = downloadDir(hostContext);
         if (!dir.exists() && !dir.mkdirs())
@@ -136,12 +142,11 @@ public final class ApkInstaller {
             }
 
             // Everything above is a reason to refuse. Past this point the file
-            // is verified and Android takes over, reporting back to onInstalled.
-            SessionInstaller.install(hostContext, apk, entry.label, onInstalled);
-
-            // The session has already read the file, so nothing needs it now.
-            // Previously a verified APK sat on disk until the next ATAK start.
-            delete(apk);
+            // is verified and Android takes over. The installer copies the file
+            // into its own staging when it launches (API 24 and up), but we are
+            // not told when that is done, so the file stays on disk until the
+            // next ATAK start, when purgeDownloads() clears it.
+            handToInstaller(hostContext, apk);
             return new Result(true, null);
 
         } catch (IOException e) {
@@ -152,6 +157,47 @@ public final class ApkInstaller {
             delete(apk);
             Log.e(TAG, "install failed for " + entry.packageName, e);
             return new Result(false, "Could not start the installer: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Hands the verified file to Android's installer the way ATAK's own package
+     * manager does: ACTION_VIEW on a content:// URI from ATAK's FileProvider.
+     *
+     * Not a PackageInstaller session, and that is a measured decision. 0.3 and
+     * 0.4 used a session, which reports the outcome back -- and makes ATAK the
+     * installer of record. Android delivers PACKAGE_ADDED once to everyone and a
+     * second copy straight to the installer, and ATAK asks "Load plugin?" once
+     * per copy. Measured on ATAK-CIV 5.7.0.5, Android 14, replacing Cam Depot
+     * 1.1 over itself: installer of record shell, one event, one prompt;
+     * installer of record ATAK, two events, two prompts. Through the system
+     * installer the question comes once, which is what ATAK's own package
+     * manager gives a user.
+     *
+     * The cost is blindness to cancel: nothing says the operator backed out. The
+     * pane watches the package broadcast for success and times out otherwise.
+     */
+    private static void handToInstaller(Context hostContext, File apk) {
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setDataAndType(contentUri(hostContext, apk),
+                "application/vnd.android.package-archive");
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        hostContext.startActivity(i);
+    }
+
+    private static Uri contentUri(Context hostContext, File apk) {
+        String authority = hostContext.getPackageName() + ".provider";
+        try {
+            return androidx.core.content.FileProvider.getUriForFile(hostContext, authority, apk);
+        } catch (Throwable t) {
+            // Official ATAK is obfuscated and need not keep the helper. The
+            // mapping is fixed by ATAK's own provider_paths.xml, so the URI can
+            // be written directly: files-path PROVIDER_NAME -> PROVIDER_PATH.
+            Log.d(TAG, "FileProvider unavailable, building the URI directly: " + t);
+            return new Uri.Builder().scheme("content").authority(authority)
+                    .appendPath(PROVIDER_NAME).appendPath(SUBDIR)
+                    .appendPath(apk.getName()).build();
         }
     }
 

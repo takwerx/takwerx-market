@@ -35,6 +35,17 @@ public class MarketView implements MarketAdapter.ActionListener {
 
     private static final String TAG = "TakwerxMarket.View";
 
+    /** Told the number of updates waiting whenever the pane recomputes it. */
+    public interface UpdateCountListener {
+        void onUpdateCount(int updates);
+    }
+
+    private UpdateCountListener updateCountListener;
+
+    public void setUpdateCountListener(UpdateCountListener l) {
+        this.updateCountListener = l;
+    }
+
     /** Match MarketAdapter's colours; the header and the rows are one idea. */
     private static final int AMBER = 0xFFFFB300;
     private static final int GREEN = 0xFF8BC34A;
@@ -111,14 +122,26 @@ public class MarketView implements MarketAdapter.ActionListener {
     private final BroadcastReceiver packageWatcher = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            final String pkg = intent.getData() == null ? null
+                    : intent.getData().getSchemeSpecificPart();
             root.post(new Runnable() {
                 @Override
                 public void run() {
+                    if (pkg != null && pkg.equals(installing))
+                        clearInstalling();
                     refreshInstalledState();
                 }
             });
         }
     };
+
+    /** How long a row says "Installing…" with no word from Android. */
+    private static final long INSTALL_WAIT_MS = 90_000;
+
+    private void clearInstalling() {
+        installing = null;
+        adapter.setDownloading(null, 0);
+    }
 
     public MarketView(Context pluginContext, Context hostContext, String baseUrl,
             String pluginApi) {
@@ -253,6 +276,12 @@ public class MarketView implements MarketAdapter.ActionListener {
             }
         }
 
+        // The toolbar badge is driven from here, not from the startup check
+        // alone. Setting it only at start left "3" on the icon after all three
+        // had been updated, while the header underneath said nothing to update.
+        if (updateCountListener != null)
+            updateCountListener.onUpdateCount(updates);
+
         String atak = pluginApi == null ? "this ATAK"
                 : "ATAK " + pluginApi.substring(pluginApi.indexOf('@') + 1);
         SpannableStringBuilder sb = new SpannableStringBuilder();
@@ -325,30 +354,8 @@ public class MarketView implements MarketAdapter.ActionListener {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                // Android reports the outcome here, which is the point of the
-                // session: until now the plugin never learned whether an install
-                // succeeded, was cancelled, or failed.
-                final SessionInstaller.Callback onInstalled = new SessionInstaller.Callback() {
-                    @Override
-                    public void onFinished(final boolean success, final String message) {
-                        root.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                adapter.setDownloading(null, 0);
-                                installing = null;
-                                refreshInstalledState();
-                                if (!success && message != null) {
-                                    statusView.setText(message);
-                                    Toast.makeText(hostContext, message,
-                                            Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        });
-                    }
-                };
-
                 final ApkInstaller.Result r = ApkInstaller.fetchAndInstall(
-                        hostContext, baseUrl, entry, progress, onInstalled);
+                        hostContext, baseUrl, entry, progress);
                 root.post(new Runnable() {
                     @Override
                     public void run() {
@@ -356,11 +363,20 @@ public class MarketView implements MarketAdapter.ActionListener {
                         refresh.setEnabled(true);
                         if (r.ok) {
                             // Handed to Android. The row keeps saying so until
-                            // the session reports back, so ATAK's own
+                            // the package broadcast arrives, so ATAK's own
                             // "uninstalled" toast during a replace is visibly
-                            // contradicted by the row it refers to.
+                            // contradicted by the row it refers to. Nothing
+                            // arrives if the operator cancels, so the row
+                            // gives up on its own after a while.
                             installing = entry.packageName;
                             adapter.setInstalling(entry.packageName);
+                            root.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (entry.packageName.equals(installing))
+                                        clearInstalling();
+                                }
+                            }, INSTALL_WAIT_MS);
                             return;
                         }
                         adapter.setDownloading(null, 0);

@@ -3,7 +3,7 @@
 
 #show: userguide.with(
    plugin-name: "TAKwerx Market",
-   plugin-version: "0.4",
+   plugin-version: "0.5",
    platform: "ATAK",
    platform-version: "5.8.0",
 )
@@ -60,10 +60,15 @@ reads as though nothing else exists.
 Tap *Install* or *Update* and the market downloads the plugin, checks it, and
 hands it to Android.
 
-Android then asks you to confirm the install. That prompt is Android's own and
-cannot be skipped — no app on your phone can install another one silently. On
-some devices you are asked once to allow ATAK to install apps; allow it and you
-will not be asked again.
+Android then asks you to confirm the install, and shows its own "Done" screen
+when it has finished. Both are Android's and cannot be skipped — no app on your
+phone can install another one silently. On some devices you are asked once to
+allow ATAK to install apps; allow it and you will not be asked again.
+
+ATAK then asks whether to load the plugin, exactly as it does after an install
+from its own package manager. Say yes. During an update ATAK may also flash a
+toast saying the plugin was uninstalled; that is ATAK noticing the old copy
+being replaced, and the row underneath it says "Installing…" for that reason.
 
 After Android finishes, the row updates on its own. You do not need to reopen
 the market or refresh it.
