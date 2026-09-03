@@ -185,7 +185,11 @@ available the row says so, and Update asks which one you want. A same-release
 update, 5.7.0.5 to 5.7.0.14 say, is simpler: ATAK alone goes to Android, and
 the market and your plugins keep working as they are.
 
-![The ATAK-CIV row above the plugins, offering 5.8.0.4, with Update all beside it](screenshots/19-atak-row.png)
+![The ATAK-CIV row above the plugins on a 5.7 phone, offering 5.8.0.4 or 5.7.0.14](screenshots/19-atak-row.png)
+
+![Update ATAK to which version? 5.8.0.4 (newest), or 5.7.0.14, same release, plugins keep working](screenshots/22-atak-version-chooser.png)
+
+![The ATAK row downloading, 30%](screenshots/23-atak-downloading.png)
 
 Tap it and read the warning, because this one restarts ATAK. The market
 downloads ATAK (about 370 MB), then its own build for the new ATAK, and checks
