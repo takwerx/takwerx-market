@@ -33,7 +33,7 @@ this plugin distributes nothing.
 _________________________________________________________________
 STATUS
 
-Version 0.2. Second submission.
+Version 0.3. Third submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -46,10 +46,18 @@ ATAK-CIV 5.7.0.5. The signature verified, the plugin loaded, and a plugin was
 updated from the catalog end to end -- downloaded, hash checked, signer checked,
 installed over the existing copy and loaded by ATAK without a restart.
 
-0.2 fixes what that session exposed: the loaded/unloaded indicator went stale
-after an update, because loading a plugin raises no broadcast to observe and
-ATAK's own post-update prompt is exactly the path that triggers it. Download
-progress also moved onto the row it belongs to.
+0.2 fixed what that session exposed: a loaded/unloaded indicator that went stale
+after an update, and download progress that lived in a header where it could not
+say which row was busy. Both confirmed working on ATAK-CIV 5.7.0.5, along with a
+clean install and a replace-in-place update.
+
+0.3 changes how the APK is handed to Android. Previously the plugin never
+learned the outcome of an install, so the list depended on package broadcasts to
+notice -- and on Android 14 those did not reliably arrive, leaving a row
+claiming a plugin was installed after it had been removed. Installing through a
+PackageInstaller session reports the result back, so the row is correct without
+a refresh. Android's confirmation prompt is unchanged; its separate completion
+screen is not shown, so an install is one dialog rather than two.
 
 _________________________________________________________________
 POINT OF CONTACTS
