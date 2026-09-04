@@ -190,12 +190,13 @@ public class MarketAdapter extends BaseAdapter {
                     String to = PluginVersion.number(e.version);
                     String a = MarketEntry.atakOf(e.installedPluginApi);
                     String b = MarketEntry.atakOf(pluginApi);
-                    // The arrow joins like with like: versions, or ATAK
-                    // releases, never one of each. "0.1 for 5.7.0.CIV → 0.5
-                    // for 5.6.0.CIV" read as an ATAK downgrade on the S21.
-                    status.setText(from != null && from.equals(to)
-                            ? from + "  ·  built for " + a + "  →  " + b
-                            : from + "  →  " + to + "  ·  built for " + a);
+                    // Say which side each fact belongs to. "0.1 for 5.7.0.CIV →
+                    // 0.5 for 5.6.0.CIV" read as an ATAK downgrade; "1.0 → 1.1 ·
+                    // built for 5.6.0.CIV" read as if the NEW build were for
+                    // 5.6. Measured on the S21, both times. So: what is on the
+                    // phone and what it was built for, then what is offered,
+                    // which is by definition for this ATAK.
+                    status.setText(from + " built for " + a + "  →  " + to + " for this ATAK");
                 } else if (e.isAtak() && !e.alternatives.isEmpty()) {
                     // More than one target on offer; the newest leads and the
                     // choice comes when Update is tapped.
