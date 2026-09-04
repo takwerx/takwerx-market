@@ -620,6 +620,18 @@ public class MarketView implements MarketAdapter.ActionListener {
 
     /** Called when the plugin stops. Leaving these registered leaks them. */
     public void dispose() {
+        // When the market is replacing ITSELF, ATAK unloads this copy and this
+        // pane stays on screen, frozen on "Installing…", because nothing is
+        // left to repaint it -- measured on the Note 20, 2026-09-03. Say what
+        // to do instead, on the way out.
+        if (installing != null && installing.equals(pluginContext.getPackageName())) {
+            try {
+                adapter.setDownloading(null, 0);
+                statusView.setText("TAKwerx Market updated. Close this pane and open it again.");
+            } catch (Exception ignored) {
+                // the view may already be gone; nothing to say then
+            }
+        }
         // Unloaded mid-upgrade is expected: ATAK unloads a plugin whose package
         // is being replaced. Finish the job on the way out -- but only if the
         // market's build for the new ATAK really landed. dispose() also runs
