@@ -1,10 +1,10 @@
 ATAK Plugin — TAKwerx Market
 
-**Download TAKwerx Market 1.2** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.3** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.2/ATAK-Plugin-TakwerxMarket-1.2--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.2/ATAK-Plugin-TakwerxMarket-1.2--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.2/ATAK-Plugin-TakwerxMarket-1.2--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.3/ATAK-Plugin-TakwerxMarket-1.3--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.3/ATAK-Plugin-TakwerxMarket-1.3--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.3/ATAK-Plugin-TakwerxMarket-1.3--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -51,7 +51,7 @@ market pins that signature for ATAK's package before Android is asked.
 _________________________________________________________________
 STATUS
 
-Version 1.2. Twelfth submission.
+Version 1.3. Thirteenth submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -170,6 +170,17 @@ build to land, however long Android takes, and the next ATAK start clears the
 file if it never does. The version chooser also says what a cross-release
 choice means for the plugins, and the guide says that after the market
 updates itself ATAK must be quit and reopened to run the new build.
+
+1.2 was run on all three official phones: a same-release update on 5.7, the
+full 5.6 to 5.7 jump with Android's first-sideload prompts in the way and
+the new market loading on its own after the restart, and the market
+replacing itself. 1.3 is two sentences from those runs. When the market
+replaces itself, ATAK unloads the running copy and its pane stays on screen
+frozen on "Installing…"; the outgoing copy now writes "TAKwerx Market
+updated. Close this pane and open it again." into its status line as it
+goes. And a row for a plugin built for another ATAK names both sides,
+"1.0 built for 5.6.0.CIV → 1.1 for this ATAK", because the shorter form read
+as if the new build were for the old ATAK.
 
 _________________________________________________________________
 POINT OF CONTACTS

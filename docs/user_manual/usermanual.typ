@@ -3,7 +3,7 @@
 
 #show: userguide.with(
    plugin-name: "TAKwerx Market",
-   plugin-version: "1.2",
+   plugin-version: "1.3",
    platform: "ATAK",
    platform-version: "5.8.0",
 )
@@ -230,8 +230,8 @@ is restarted, so the new market is on the phone but not yet the one running.
   install once it starts.
 
   ATAK comes back on the new version. Open the market: every plugin you had
-  is listed as *built for 5.7.0.CIV → 5.8.0.CIV*, and *Update all* moves them
-  over one after another, each with the same three screens as one update.
+  is listed as built for the old ATAK, and *Update all* moves them over one
+  after another, each with the same three screens as one update.
 
   The ATAK file is the TAK Product Center's own release, copied unchanged and
   carrying its signature; the market checks that signature, and that the file

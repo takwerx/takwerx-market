@@ -1,12 +1,12 @@
 # TAKwerx Market for ATAK — User Guide
 
-**Version 1.2 · takwerx**
+**Version 1.3 · takwerx**
 
-**Download TAKwerx Market 1.2** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.3** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.2/ATAK-Plugin-TakwerxMarket-1.2--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.2/ATAK-Plugin-TakwerxMarket-1.2--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.2/ATAK-Plugin-TakwerxMarket-1.2--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.3/ATAK-Plugin-TakwerxMarket-1.3--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.3/ATAK-Plugin-TakwerxMarket-1.3--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.3/ATAK-Plugin-TakwerxMarket-1.3--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -189,7 +189,13 @@ the market and your plugins keep working as they are.
 
 ![The ATAK-CIV row above the plugins on a 5.7 phone, offering 5.8.0.4 or 5.7.0.14](screenshots/19-atak-row.png)
 
-![Update ATAK to which version? 5.8.0.4 (newest), or 5.7.0.14, same release, plugins keep working](screenshots/22-atak-version-chooser.png)
+![Update ATAK to which version? 5.8.0.4 (newest) new release, plugins are rebuilt for 5.8.0 after; or 5.7.0.14, new release, plugins are rebuilt for 5.7.0 after](screenshots/22-atak-version-chooser.png)
+
+For a new release the market's own build for it goes on first, then ATAK. You
+will see ATAK ask to load the new market while Android is already installing
+ATAK behind it; tap Cancel on that one, it loads after the restart.
+
+![ATAK asking to load TAKwerx Market, with Android's ATAK Installing… dialog on top](screenshots/24-market-then-atak.png)
 
 ![The ATAK row downloading, 30%](screenshots/23-atak-downloading.png)
 
@@ -221,6 +227,10 @@ again.
 When it is done the header says **All up to date**, ATAK's own row reads
 Installed with the new version, and the count leaves the toolbar icon. Nothing
 you had downloaded into ATAK was touched.
+
+After a new release, each plugin's row reads like "1.0 built for 5.6.0.CIV →
+1.1 for this ATAK": what is on the phone and what it was built for, then what
+is offered for the ATAK you are now on.
 
 ### "signed with a different key"
 
