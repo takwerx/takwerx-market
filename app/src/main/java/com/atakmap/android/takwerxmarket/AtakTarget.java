@@ -91,6 +91,30 @@ public final class AtakTarget {
         return PREFIX + core + flavor;
     }
 
+    /** "com.atakmap.app@5.8.0.MIL" -> "MIL"; null or malformed -> "". */
+    static String flavorOf(String pluginApi) {
+        if (pluginApi == null)
+            return "";
+        int at = pluginApi.indexOf('@');
+        int dot = pluginApi.lastIndexOf('.');
+        if (at < 0 || dot <= at || dot == pluginApi.length() - 1)
+            return "";
+        String flavor = pluginApi.substring(dot + 1);
+        return flavor.matches("[A-Za-z]+") ? flavor : "";
+    }
+
+    /**
+     * The running ATAK named by flavor, "ATAK-MIL" or "ATAK-GOV", for a row that
+     * has to say what it found. Null when the flavor is not a real suffix: a
+     * package with none reads as "APP" here, and "ATAK-APP" would look like one.
+     */
+    static String flavorName(String pluginApi) {
+        String f = flavorOf(pluginApi);
+        if (f.length() == 0 || f.equalsIgnoreCase("app"))
+            return null;
+        return "ATAK-" + f.toUpperCase(java.util.Locale.US);
+    }
+
     static String coreVersion(String versionName) {
         if (versionName == null)
             return null;

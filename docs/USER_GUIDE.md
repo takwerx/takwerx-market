@@ -1,12 +1,12 @@
 # TAKwerx Market for ATAK — User Guide
 
-**Version 1.3 · takwerx**
+**Version 1.4 · takwerx**
 
-**Download TAKwerx Market 1.3** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.4** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.3/ATAK-Plugin-TakwerxMarket-1.3--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.3/ATAK-Plugin-TakwerxMarket-1.3--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.3/ATAK-Plugin-TakwerxMarket-1.3--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.4/ATAK-Plugin-TakwerxMarket-1.4--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.4/ATAK-Plugin-TakwerxMarket-1.4--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.4/ATAK-Plugin-TakwerxMarket-1.4--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -69,7 +69,7 @@ it.
 
 ATAK plugins are built against one ATAK release and only load on that release.
 The market reads the ATAK you are running and offers only what matches it.
-Anything built for a different ATAK is still listed, greyed out, saying which
+Anything built for a different ATAK is still listed, grayed out, saying which
 release it was built for. It is not hidden: a list that silently drops things
 reads as though nothing else exists.
 
@@ -186,6 +186,9 @@ the plugins, with an **Update** button. If more than one newer release is
 available the row says so, and Update asks which one you want. A same-release
 update, 5.7.0.5 to 5.7.0.14 say, is simpler: ATAK alone goes to Android, and
 the market and your plugins keep working as they are.
+
+On ATAK-MIL or ATAK-GOV the row is grayed and says which ATAK it found. The
+market carries ATAK-CIV only; those builds are updated through tak.gov.
 
 ![The ATAK-CIV row above the plugins on a 5.7 phone, offering 5.8.0.4 or 5.7.0.14](screenshots/19-atak-row.png)
 

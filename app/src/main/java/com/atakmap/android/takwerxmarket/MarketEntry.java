@@ -77,12 +77,22 @@ public class MarketEntry {
     }
 
     /**
-     * The catalog row for ATAK itself: type "app", ATAK's own package. It has no
-     * plugin-api requirement, so it is "compatible" with every ATAK, and its
-     * installed version is whatever ATAK this code is running inside.
+     * The catalog row for ATAK itself: type "app", ATAK's own package. It carries
+     * no plugin-api requirement; it is offered to an ATAK of its own flavor only
+     * (see {@link #isCompatibleWith}), and its installed version is whatever ATAK
+     * this code is running inside.
      */
     public boolean isAtak() {
         return !isPlugin() && packageName != null && packageName.startsWith("com.atakmap.app");
+    }
+
+    /** "com.atakmap.app.civ" -> "civ"; "com.atakmap.app" or null -> "". */
+    static String flavorOfPackage(String packageName) {
+        String prefix = "com.atakmap.app.";
+        if (packageName == null || !packageName.startsWith(prefix))
+            return "";
+        String flavor = packageName.substring(prefix.length());
+        return flavor.matches("[A-Za-z]+") ? flavor : "";
     }
 
     /** "com.atakmap.app@5.7.0.CIV" -> "5.7.0.CIV"; null -> null. */
@@ -122,6 +132,15 @@ public class MarketEntry {
      * is the only claim worth putting in front of an operator.
      */
     public boolean isCompatibleWith(String runningPluginApi) {
+        if (isAtak())
+            // The catalog's ATAK is ATAK-CIV. On ATAK-MIL or ATAK-GOV that row
+            // would put a second ATAK beside the one running, and the upgrade
+            // path refuses it anyway as a package this code is not inside. So
+            // it is offered to an ATAK of its own flavor only, and elsewhere
+            // the row says what was detected instead of showing an Update
+            // button that cannot be used.
+            return flavorOfPackage(packageName).equalsIgnoreCase(
+                    AtakTarget.flavorOf(runningPluginApi));
         if (!isPlugin())
             return true;                 // plain apps carry no plugin-api requirement
         if (takRequirement == null || takRequirement.length() == 0)

@@ -3,7 +3,7 @@
 
 #show: userguide.with(
    plugin-name: "TAKwerx Market",
-   plugin-version: "1.3",
+   plugin-version: "1.4",
    platform: "ATAK",
    platform-version: "5.8.0",
 )
@@ -76,7 +76,7 @@ there is nothing to do to it.
 
   ATAK plugins are built against one ATAK release and only load on that
   release. The market reads the ATAK you are running and offers only what
-  matches it. Anything built for a different ATAK is still listed, greyed out,
+  matches it. Anything built for a different ATAK is still listed, grayed out,
   saying which release it was built for. It is not hidden: a list that silently
   drops things reads as though nothing else exists.
 ]
@@ -222,6 +222,9 @@ is restarted, so the new market is on the phone but not yet the one running.
 
   A same-release update, 5.7.0.5 to 5.7.0.14 say, is simpler: ATAK alone goes
   to Android, and the market and your plugins keep working as they are.
+
+  On ATAK-MIL or ATAK-GOV the row is grayed and says which ATAK it found. The
+  market carries ATAK-CIV only; those builds are updated through tak.gov.
 
   The market downloads ATAK (about 370 MB), then its own build for the new
   ATAK, and checks both. Then two Android prompts, back to back: first the

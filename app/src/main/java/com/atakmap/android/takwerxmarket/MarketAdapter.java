@@ -243,9 +243,18 @@ public class MarketAdapter extends BaseAdapter {
             default:
                 // Shown, never silently dropped: the operator should be able to see
                 // that the plugin exists and why it is not on offer here.
-                String builtFor = e.builtForAtak();
-                status.setText(pluginContext.getString(R.string.market_unavailable)
-                        + (builtFor == null ? "" : " · built for " + builtFor));
+                if (e.isAtak()) {
+                    // ATAK-CIV's row on an ATAK-MIL or ATAK-GOV phone. Name
+                    // what was detected, so the gray row reads as a fact
+                    // about the phone and not as a broken catalog.
+                    String running = AtakTarget.flavorName(pluginApi);
+                    status.setText((running == null ? "Another ATAK" : running)
+                            + " detected  ·  updated through tak.gov, not here");
+                } else {
+                    String builtFor = e.builtForAtak();
+                    status.setText(pluginContext.getString(R.string.market_unavailable)
+                            + (builtFor == null ? "" : " · built for " + builtFor));
+                }
                 status.setTextColor(GREY);
                 action.setVisibility(View.INVISIBLE);
                 action.setEnabled(false);

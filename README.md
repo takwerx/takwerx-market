@@ -1,10 +1,10 @@
 ATAK Plugin — TAKwerx Market
 
-**Download TAKwerx Market 1.3** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.4** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.3/ATAK-Plugin-TakwerxMarket-1.3--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.3/ATAK-Plugin-TakwerxMarket-1.3--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.3/ATAK-Plugin-TakwerxMarket-1.3--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.4/ATAK-Plugin-TakwerxMarket-1.4--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.4/ATAK-Plugin-TakwerxMarket-1.4--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.4/ATAK-Plugin-TakwerxMarket-1.4--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -25,7 +25,7 @@ Capabilities:
   - Reads a catalog over HTTPS in ATAK's own product.inf format, so the same
     hosted tree is also readable by ATAK's built-in Update Server setting.
   - Offers only what matches the running ATAK. A plugin built for a different
-    ATAK release is listed and greyed with the release it was built for, rather
+    ATAK release is listed and grayed with the release it was built for, rather
     than hidden, so the list never silently omits things.
   - Per plugin: install, update, load, unload and uninstall, the same set of
     actions ATAK's own package manager offers.
@@ -51,7 +51,7 @@ market pins that signature for ATAK's package before Android is asked.
 _________________________________________________________________
 STATUS
 
-Version 1.3. Thirteenth submission.
+Version 1.4. Fourteenth submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -182,6 +182,11 @@ goes. And a row for a plugin built for another ATAK names both sides,
 "1.0 built for 5.6.0.CIV → 1.1 for this ATAK", because the shorter form read
 as if the new build were for the old ATAK.
 
+1.4 grays the ATAK row on ATAK-MIL and ATAK-GOV. The market carries
+ATAK-CIV, and on those builds the row showed an Update button whose tap was
+refused after the fact; it now says which ATAK it found and offers nothing,
+the way a plugin built for another ATAK does.
+
 _________________________________________________________________
 POINT OF CONTACTS
 
@@ -307,6 +312,6 @@ DEVELOPER NOTES
 
   ATAK already ships a mechanism for this in com.atakmap.android.update, and it
   is worth knowing why this plugin exists alongside it. That mechanism is driven
-  by a single Update Server URL, so an organisation already pointing ATAK at
+  by a single Update Server URL, so an organization already pointing ATAK at
   their own repository would have to give it up. This plugin adds a catalog
   rather than replacing one, and needs no configuration.
