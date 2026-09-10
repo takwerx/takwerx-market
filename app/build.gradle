@@ -8,7 +8,7 @@
 
 buildscript {
 
-    ext.PLUGIN_VERSION = "1.4"
+    ext.PLUGIN_VERSION = "1.5"
     // Android's integer version. The package manager and every MDM decide "is
     // this an update" from this number alone; versionName is display only. The
     // SDK's getVersionCode() reads the git commit and tak.gov builds from a zip

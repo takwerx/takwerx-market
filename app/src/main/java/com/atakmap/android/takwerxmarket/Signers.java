@@ -134,9 +134,40 @@ public final class Signers {
 
     /** SHA-256 digests of the certificates an installed package is signed with. */
     public static Set<String> ofInstalled(Context context, String packageName) {
+        Set<String> out = installed(context, packageName, flags());
+        if (out.isEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            out = installed(context, packageName, LEGACY_FLAG);
+        return out;
+    }
+
+    /**
+     * SHA-256 digests of the certificates an APK on disk is signed with.
+     *
+     * Android 9 answers GET_SIGNING_CERTIFICATES for a FILE with a
+     * PackageInfo whose signingInfo is null (measured on an Android 9
+     * emulator, 2026-09-09; the framework source shows some later releases
+     * do the same), so every download read as unsigned, and isTakSigned,
+     * which fails closed on purpose, refused it: takwerx-market#1, a Samsung
+     * S8+ on Android 9. The older flag runs the same verifier and reads a
+     * file there. So an empty answer is asked again the old way before it
+     * counts as an answer; a real unsigned file is empty both times and is
+     * still refused.
+     */
+    public static Set<String> ofApk(Context context, File apk) {
+        Set<String> out = archive(context, apk, flags());
+        if (out.isEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            Log.d(TAG, "no signers for " + apk.getName() + " with the new flag; asking the old way");
+            out = archive(context, apk, LEGACY_FLAG);
+        }
+        return out;
+    }
+
+    @SuppressWarnings("deprecation")
+    private static final int LEGACY_FLAG = PackageManager.GET_SIGNATURES;
+
+    private static Set<String> installed(Context context, String packageName, int flags) {
         try {
-            PackageInfo pi = context.getPackageManager()
-                    .getPackageInfo(packageName, flags());
+            PackageInfo pi = context.getPackageManager().getPackageInfo(packageName, flags);
             return digestsOf(pi);
         } catch (Exception e) {
             Log.d(TAG, "no signers for installed " + packageName + ": " + e.getMessage());
@@ -144,11 +175,10 @@ public final class Signers {
         }
     }
 
-    /** SHA-256 digests of the certificates an APK on disk is signed with. */
-    public static Set<String> ofApk(Context context, File apk) {
+    private static Set<String> archive(Context context, File apk, int flags) {
         try {
             PackageInfo pi = context.getPackageManager()
-                    .getPackageArchiveInfo(apk.getAbsolutePath(), flags());
+                    .getPackageArchiveInfo(apk.getAbsolutePath(), flags);
             return digestsOf(pi);
         } catch (Exception e) {
             Log.d(TAG, "no signers for " + apk.getName() + ": " + e.getMessage());

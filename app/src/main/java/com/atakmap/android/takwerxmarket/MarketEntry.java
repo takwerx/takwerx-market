@@ -14,7 +14,7 @@ package com.atakmap.android.takwerxmarket;
 public class MarketEntry {
 
     public enum Status {
-        /** Built for a different ATAK; offered greyed out with the reason. */
+        /** Built for a different ATAK; offered grayed out with the reason. */
         INCOMPATIBLE,
         NOT_INSTALLED,
         INSTALLED,

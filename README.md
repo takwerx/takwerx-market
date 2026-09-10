@@ -1,10 +1,10 @@
 ATAK Plugin — TAKwerx Market
 
-**Download TAKwerx Market 1.4** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.5** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.4/ATAK-Plugin-TakwerxMarket-1.4--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.4/ATAK-Plugin-TakwerxMarket-1.4--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.4/ATAK-Plugin-TakwerxMarket-1.4--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.5/ATAK-Plugin-TakwerxMarket-1.5--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.5/ATAK-Plugin-TakwerxMarket-1.5--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.5/ATAK-Plugin-TakwerxMarket-1.5--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -51,7 +51,7 @@ market pins that signature for ATAK's package before Android is asked.
 _________________________________________________________________
 STATUS
 
-Version 1.4. Fourteenth submission.
+Version 1.5. Fifteenth submission.
 
 Verified on hardware against a live catalog: Samsung Galaxy XCover Pro,
 Android 13, ATAK-CIV 5.8.0.3. Catalog fetch, per-ATAK filtering, update
@@ -186,6 +186,13 @@ as if the new build were for the old ATAK.
 ATAK-CIV, and on those builds the row showed an Update button whose tap was
 refused after the fact; it now says which ATAK it found and offers nothing,
 the way a plugin built for another ATAK does.
+
+1.5 fixes installs on Android 9. The market reads a downloaded file's signing
+certificate before handing it to Android, and Android 9 alone answers the
+newer way of asking with nothing, so every download was refused as not signed
+by the TAK Product Center. When that answer comes back empty the market now
+asks the older way as well; a file that is really unsigned is empty both
+times and is still refused.
 
 _________________________________________________________________
 POINT OF CONTACTS

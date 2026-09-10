@@ -36,7 +36,7 @@ public class MarketAdapter extends BaseAdapter {
      * Installed is not the same as running. ATAK can hold a plugin installed but
      * unloaded, and from the map there is no way to tell the two apart — so the
      * row says which. Green for loaded, yellow for unloaded, and the word is
-     * spelled out so the row does not depend on colour alone: an update row is
+     * spelled out so the row does not depend on color alone: an update row is
      * already amber for a different reason.
      */
     private static CharSequence withLoadState(CharSequence base, Boolean loaded) {

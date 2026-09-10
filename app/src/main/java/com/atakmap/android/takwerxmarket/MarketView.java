@@ -46,7 +46,7 @@ public class MarketView implements MarketAdapter.ActionListener {
         this.updateCountListener = l;
     }
 
-    /** Match MarketAdapter's colours; the header and the rows are one idea. */
+    /** Match MarketAdapter's colors; the header and the rows are one idea. */
     private static final int AMBER = 0xFFFFB300;
     private static final int GREEN = 0xFF8BC34A;
 
@@ -768,7 +768,7 @@ public class MarketView implements MarketAdapter.ActionListener {
         // Second line, under the count, so the state of the list is its own
         // sentence rather than a clause tacked onto the ATAK version.
         if (updates > 0) {
-            // Amber, the same colour the rows use for a pending update, so the
+            // Amber, the same color the rows use for a pending update, so the
             // count and the rows it refers to read as one thing.
             int at = sb.length();
             sb.append("\n").append(String.valueOf(updates))
@@ -779,7 +779,7 @@ public class MarketView implements MarketAdapter.ActionListener {
             // Only claim this when something is actually installed. With four
             // plugins offered and none installed there are zero updates, but
             // nothing is up to date either, and saying so would be a lie told in
-            // green — the one colour an operator will not stop to question.
+            // green — the one color an operator will not stop to question.
             //
             // The same lie in a smaller size: "All up to date" while two of the
             // four were not installed at all read as wrong on the S22, because
