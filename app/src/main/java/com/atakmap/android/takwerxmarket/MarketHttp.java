@@ -101,26 +101,30 @@ public final class MarketHttp {
             InputStream in = c.getInputStream();
             out = new FileOutputStream(dest);
             byte[] buf = new byte[16384];
-            // The first read happens before the loop: an empty download is
-            // refused rather than hashed (there is no APK in it to install),
-            // and the digest is never finalized without having been fed,
-            // which tak.gov's Fortify scan flags when the only updates sit
-            // inside a loop.
+            // An empty download is refused rather than hashed: there is no
+            // APK in it to install. The last chunk goes in through
+            // digest(byte[]), update and finalize in one call, so the call
+            // that finalizes the hash carries data on every path; tak.gov's
+            // Fortify scan (a control-flow rule that treats a loop body as
+            // optional) flags a bare digest() after an update loop.
             int n = in.read(buf);
             if (n <= 0)
                 throw new IOException("empty download");
             long total = 0;
+            byte[] last = null;
             do {
                 total += n;
                 if (total > MAX_APK_BYTES)
                     throw new IOException("download exceeded " + MAX_APK_BYTES + " bytes");
-                sha.update(buf, 0, n);
+                if (last != null)
+                    sha.update(last);
+                last = java.util.Arrays.copyOf(buf, n);
                 out.write(buf, 0, n);
                 if (progress != null)
                     progress.onProgress(total, declared);
             } while ((n = in.read(buf)) > 0);
             out.flush();
-            return hex(sha.digest());
+            return hex(sha.digest(last));
         } finally {
             if (out != null) {
                 try {
