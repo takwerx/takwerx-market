@@ -101,9 +101,16 @@ public final class MarketHttp {
             InputStream in = c.getInputStream();
             out = new FileOutputStream(dest);
             byte[] buf = new byte[16384];
-            int n;
+            // The first read happens before the loop: an empty download is
+            // refused rather than hashed (there is no APK in it to install),
+            // and the digest is never finalized without having been fed,
+            // which tak.gov's Fortify scan flags when the only updates sit
+            // inside a loop.
+            int n = in.read(buf);
+            if (n <= 0)
+                throw new IOException("empty download");
             long total = 0;
-            while ((n = in.read(buf)) > 0) {
+            do {
                 total += n;
                 if (total > MAX_APK_BYTES)
                     throw new IOException("download exceeded " + MAX_APK_BYTES + " bytes");
@@ -111,7 +118,7 @@ public final class MarketHttp {
                 out.write(buf, 0, n);
                 if (progress != null)
                     progress.onProgress(total, declared);
-            }
+            } while ((n = in.read(buf)) > 0);
             out.flush();
             return hex(sha.digest());
         } finally {
