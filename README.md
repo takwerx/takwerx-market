@@ -1,10 +1,10 @@
 ATAK Plugin — TAKwerx Market
 
-**Download TAKwerx Market 1.6** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.7** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.6/ATAK-Plugin-TakwerxMarket-1.6--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.6/ATAK-Plugin-TakwerxMarket-1.6--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.6/ATAK-Plugin-TakwerxMarket-1.6--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.7/ATAK-Plugin-TakwerxMarket-1.7--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.7/ATAK-Plugin-TakwerxMarket-1.7--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.7/ATAK-Plugin-TakwerxMarket-1.7--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -51,10 +51,12 @@ market pins that signature for ATAK's package before Android is asked.
 _________________________________________________________________
 STATUS
 
-Version 1.6: one versionCode per APK. The same plugin as 1.5, rebuilt so that
-each ATAK target's APK carries its own versionCode, the plugin version and the
-ATAK version folded into one integer, which lets an MDM hold all three builds
-and push each one as an update. Nothing else changed.
+Version 1.7: a download's file name carries nothing from the catalog, and the
+market downloads only from the depot's own host and github.com, where the
+release APKs live (tak.gov's scan of 1.6 flagged both). 1.7 also carries the
+change 1.6 was built for: each ATAK target's APK has its own versionCode, so
+an MDM can hold all three builds and push each one as an update. 1.6 went to
+tak.gov once and was superseded on the scan findings before publication.
 
 Version 1.5. Fifteenth submission.
 
