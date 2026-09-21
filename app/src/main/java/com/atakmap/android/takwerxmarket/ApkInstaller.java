@@ -127,9 +127,18 @@ public final class ApkInstaller {
         if (!dir.exists() && !dir.mkdirs())
             return new Fetched(null, new Result(false, "Could not create the download folder"));
 
-        File apk = new File(dir, safeFileName(entry));
-        if (apk.exists() && !apk.delete())
-            Log.w(TAG, "could not clear a previous download");
+        // A fresh, uniquely named file with nothing from the catalog in its
+        // name: the catalog is a network input, and a name built from it is a
+        // path the server had a hand in (tak.gov's Fortify scan of 1.6, Path
+        // Manipulation). createTempFile stays unique across a plugin reload,
+        // where a class counter would start over; purgeDownloads() empties the
+        // directory at plugin start.
+        final File apk;
+        try {
+            apk = File.createTempFile("takwerxmarket-", ".apk", dir);
+        } catch (IOException e) {
+            return new Fetched(null, new Result(false, "Could not create the download file"));
+        }
 
         // ATAK is ~370 MB and the installer stages its own copy, so ask before
         // filling the disk: the download plus room for the copy.
@@ -292,34 +301,106 @@ public final class ApkInstaller {
         }
     }
 
+    /** Hosts a catalog may send the market to, besides the depot's own. */
+    private static final String[] DOWNLOAD_HOSTS = { "github.com" };
+
     /**
-     * A catalog path is relative to the market base. An absolute one is taken as
-     * given, but still has to be HTTPS — MarketHttp refuses anything else.
+     * The URL a catalog path resolves to, on a host the market already trusts
+     * and nowhere else. The catalog is a network input, so a URL taken from it
+     * as-is is a request the server chooses (tak.gov's Fortify scan of 1.6,
+     * Server-Side Request Forgery). An absolute URL is accepted only over
+     * https, with no user info, port, query or fragment, and only on the
+     * depot's host or a release host in DOWNLOAD_HOSTS; a relative path is
+     * joined to the depot. Either way the result is rebuilt from the checked
+     * parts, one path segment at a time, each decoded and then encoded, with
+     * dot segments judged after decoding, so nothing in a catalog row can
+     * reach another host, port or query, or climb out of its path.
      */
     static String resolve(String baseUrl, String path) throws IOException {
         if (path == null || path.length() == 0)
             throw new IOException("catalog entry has no APK path");
-
-        String lower = path.toLowerCase(Locale.US);
-        if (lower.startsWith("https://"))
-            return path;
-        if (lower.startsWith("http://"))
-            throw new IOException("catalog entry uses a plain-http URL");
-        if (path.contains(".."))
-            throw new IOException("catalog entry has a relative path segment");
+        if (baseUrl == null || baseUrl.length() == 0)
+            throw new IOException("no depot URL");
 
         String base = baseUrl;
         while (base.endsWith("/"))
             base = base.substring(0, base.length() - 1);
-        return base + "/" + (path.startsWith("/") ? path.substring(1) : path);
+        final java.net.URL depot;
+        try {
+            depot = new java.net.URL(base);
+        } catch (java.net.MalformedURLException e) {
+            throw new IOException("bad depot URL", e);
+        }
+        if (!"https".equalsIgnoreCase(depot.getProtocol()))
+            throw new IOException("depot must be https");
+
+        String lower = path.toLowerCase(Locale.US);
+        if (lower.startsWith("http://"))
+            throw new IOException("catalog entry uses a plain-http URL");
+
+        final String host;
+        final int port;
+        final String fullPath;
+        if (lower.startsWith("https://")) {
+            final java.net.URL u;
+            try {
+                u = new java.net.URL(path);
+            } catch (java.net.MalformedURLException e) {
+                throw new IOException("bad catalog URL", e);
+            }
+            if (u.getUserInfo() != null || u.getQuery() != null || u.getRef() != null)
+                throw new IOException("catalog entry URL carries more than a path");
+            if (u.getPort() != -1)
+                throw new IOException("catalog entry URL names a port");
+            if (!hostAllowed(u.getHost(), depot.getHost()))
+                throw new IOException("catalog entry points at a host the market does not"
+                        + " download from: " + u.getHost());
+            host = u.getHost();
+            port = -1;
+            fullPath = u.getPath();
+        } else {
+            host = depot.getHost();
+            port = depot.getPort();
+            fullPath = depot.getPath() + "/" + path;
+        }
+
+        StringBuilder out = new StringBuilder("https://").append(host);
+        if (port != -1)
+            out.append(':').append(port);
+        for (String seg : fullPath.split("/")) {
+            if (seg.length() == 0)
+                continue;
+            // Decode first, so a segment the catalog already encoded is not
+            // encoded twice and a dot segment cannot hide behind %2e. A literal
+            // + is kept as one (URLDecoder would read it as a space). Then
+            // encode, with a space as %20.
+            final String plain;
+            try {
+                plain = java.net.URLDecoder.decode(seg.replace("+", "%2B"), "UTF-8");
+            } catch (IllegalArgumentException e) {
+                throw new IOException("catalog entry has a malformed path segment", e);
+            }
+            if (plain.length() == 0 || ".".equals(plain))
+                continue;
+            if ("..".equals(plain))
+                throw new IOException("catalog entry has a relative path segment");
+            out.append('/').append(java.net.URLEncoder.encode(plain, "UTF-8").replace("+", "%20"));
+        }
+        return out.toString();
+    }
+
+    private static boolean hostAllowed(String host, String depotHost) {
+        if (host == null || host.length() == 0)
+            return false;
+        if (host.equalsIgnoreCase(depotHost))
+            return true;
+        for (String h : DOWNLOAD_HOSTS)
+            if (host.equalsIgnoreCase(h))
+                return true;
+        return false;
     }
 
     /** Built from what we control, not from what the server sent. */
-    static String safeFileName(MarketEntry entry) {
-        String pkg = entry.packageName == null ? "unknown" : entry.packageName;
-        pkg = pkg.replaceAll("[^A-Za-z0-9._-]", "_");
-        return pkg + "-" + entry.revision + ".apk";
-    }
 
     /**
      * Delete anything left in the download directory.

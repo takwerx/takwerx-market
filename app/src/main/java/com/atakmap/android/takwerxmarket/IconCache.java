@@ -68,10 +68,18 @@ public final class IconCache {
                     continue;
             }
 
-            // A scratch file, deleted as soon as it is decoded. Named from the
-            // package, never from the catalog's own path.
-            File tmp = new File(dir, "takwerxmarket-icon-"
-                    + e.packageName.replaceAll("[^A-Za-z0-9._-]", "_") + ".png");
+            // A scratch file, deleted as soon as it is decoded, with nothing
+            // the catalog said in its name: a name built from a network input
+            // is a path the server had a hand in (tak.gov's Fortify scan of
+            // 1.6, Path Manipulation). createTempFile stays unique across a
+            // plugin reload, where a class counter would start over.
+            final File tmp;
+            try {
+                tmp = File.createTempFile("takwerxmarket-icon-", ".png", dir);
+            } catch (java.io.IOException ex) {
+                Log.d(TAG, "no scratch file for " + e.packageName + ": " + ex.getMessage());
+                continue;
+            }
             try {
                 MarketHttp.download(ApkInstaller.resolve(baseUrl, e.iconPath), tmp, null);
                 Bitmap b = decodeBounded(tmp);
