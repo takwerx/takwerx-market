@@ -139,4 +139,37 @@ public final class AtakTarget {
         // Require all three components, e.g. "5.8.0" and not "5.8".
         return out.split("\\.", -1).length == 3 ? out : null;
     }
+
+    /**
+     * The release whose early official builds will not start with a cataloged
+     * vector tile package. Matched as a prefix of ATAK's version number; the
+     * same rule as Map Depot's AtakBuild.
+     */
+    static final String VTPK_BLOCKED_RELEASE = "5.8.0.";
+
+    /** The first build of {@link #VTPK_BLOCKED_RELEASE} that starts with them. */
+    static final int VTPK_FIXED_BUILD = 5;
+
+    /** The ATAK version that fixed it, {@code 5.8.0.5}, for the words on screen. */
+    static String vtpkFixedVersion() {
+        return VTPK_BLOCKED_RELEASE + VTPK_FIXED_BUILD;
+    }
+
+    /**
+     * True for a build of {@link #VTPK_BLOCKED_RELEASE} below
+     * {@link #VTPK_FIXED_BUILD}, from the whole version number ("5.8.0.4"),
+     * never {@link #coreVersion}, which cannot tell 5.8.0.4 from 5.8.0.5.
+     * Fails open: a build number that does not read as one number is not
+     * blocked.
+     */
+    static boolean isVtpkBlockedBuild(String versionNumber) {
+        if (versionNumber == null || !versionNumber.startsWith(VTPK_BLOCKED_RELEASE))
+            return false;
+        try {
+            return Integer.parseInt(versionNumber.substring(VTPK_BLOCKED_RELEASE.length()))
+                    < VTPK_FIXED_BUILD;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }

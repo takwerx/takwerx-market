@@ -1,12 +1,12 @@
 # TAKwerx Market for ATAK — User Guide
 
-**Version 1.7 · takwerx**
+**Version 1.8 · takwerx**
 
-**Download TAKwerx Market 1.7** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.8** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.7/ATAK-Plugin-TakwerxMarket-1.7--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.7/ATAK-Plugin-TakwerxMarket-1.7--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.7/ATAK-Plugin-TakwerxMarket-1.7--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.8/ATAK-Plugin-TakwerxMarket-1.8--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.8/ATAK-Plugin-TakwerxMarket-1.8--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.8/ATAK-Plugin-TakwerxMarket-1.8--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -219,11 +219,11 @@ from tak.gov cannot be updated from here, and the market says so instead of
 letting Android fail.
 
 **Vector tile packages and ATAK 5.8.** ATAK 5.8.0.4 does not start with a
-vector tile package (Map Depot's public-lands maps) on the phone. If you have
-any, the market will not offer the 5.8 update, and says so. It comes back when
-tak.gov ships a fixed ATAK. To update anyway, remove the packages from the phone
-first (Map Depot's Offline Public Lands list can delete them), then tap Update
-again.
+vector tile package (Map Depot's public-lands maps) on the phone. 5.8.0.5 fixed
+that, and it is the 5.8 the market offers, so a phone with packages updates to
+it like any other. If the market is ever offered an older 5.8 build on a phone
+with packages, it refuses that one and says so: tap Refresh, then Update, and
+choose 5.8.0.5 or newer.
 
 ![After the ATAK update and Update all: every plugin on 5.8, header All up to date](screenshots/21-all-on-58.png)
 

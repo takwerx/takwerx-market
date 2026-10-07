@@ -1,10 +1,10 @@
 ATAK Plugin — TAKwerx Market
 
-**Download TAKwerx Market 1.7** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
+**Download TAKwerx Market 1.8** (pick the one matching your ATAK-CIV version, sideload, then load it in ATAK's Plugins manager):
 
-- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.7/ATAK-Plugin-TakwerxMarket-1.7--5.6.0-civ-release.apk
-- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.7/ATAK-Plugin-TakwerxMarket-1.7--5.7.0-civ-release.apk
-- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.7/ATAK-Plugin-TakwerxMarket-1.7--5.8.0-civ-release.apk
+- **ATAK-CIV 5.6:** https://github.com/takwerx/takwerx-market/releases/download/v1.8/ATAK-Plugin-TakwerxMarket-1.8--5.6.0-civ-release.apk
+- **ATAK-CIV 5.7:** https://github.com/takwerx/takwerx-market/releases/download/v1.8/ATAK-Plugin-TakwerxMarket-1.8--5.7.0-civ-release.apk
+- **ATAK-CIV 5.8:** https://github.com/takwerx/takwerx-market/releases/download/v1.8/ATAK-Plugin-TakwerxMarket-1.8--5.8.0-civ-release.apk
 
 All releases: https://github.com/takwerx/takwerx-market/releases
 
@@ -50,6 +50,13 @@ market pins that signature for ATAK's package before Android is asked.
 
 _________________________________________________________________
 STATUS
+
+Version 1.8: a phone with vector tile packages (Map Depot's public-lands maps)
+can update to ATAK 5.8.0.5. The TAK Product Center fixed the 5.8.0.4 start-up
+crash in 5.8.0.5, and the market already offered 5.8.0.5, but it still refused
+every 5.8 on such a phone and said a fix was being waited on. It now refuses
+only 5.8.0.x builds below 5.8.0.5, the rule Map Depot 1.11 shipped, and on
+those it says to choose 5.8.0.5 or newer.
 
 Version 1.7: a download's file name carries nothing from the catalog, and the
 market downloads only from the depot's own host and github.com, where the

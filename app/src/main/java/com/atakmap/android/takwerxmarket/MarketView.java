@@ -238,9 +238,9 @@ public class MarketView implements MarketAdapter.ActionListener {
             return;
         }
         // Which ATAK? The newest leads the row; every alternative that is
-        // still newer than what runs is offered too, so a phone can take the
-        // safe 5.7 while 5.8 has its vector-tile problem. Installed state is
-        // READ for each alternative, not copied from the row.
+        // still newer than what runs is offered too, so a phone can choose
+        // its release. Installed state is READ for each alternative, not
+        // copied from the row.
         MarketCatalog.resolveInstalled(hostContext, atak.alternatives);
         final List<MarketEntry> choices = new ArrayList<>();
         choices.add(atak);
@@ -284,23 +284,30 @@ public class MarketView implements MarketAdapter.ActionListener {
         // 5.8.0.4: with any vector tile package (.vtpk, Map Depot's public-
         // lands maps) already cataloged, ATAK dies in its own imagery scan on
         // every start after the first. A phone with packages that is moved to
-        // 5.8 by this market would therefore not start again. So the update is
-        // not offered to such a phone, and the message says why. The market
-        // does not move anyone's files; the operator decided that. The check
-        // is by target release, not build number, until a fixed 5.8 is
-        // confirmed.
-        String core = AtakTarget.coreVersion(atak.version);
-        int packages = core != null && core.startsWith("5.8.") ? countVectorTilePackages() : 0;
+        // such a build by this market would therefore not start again. So that
+        // build is not offered to such a phone, and the message says why. The
+        // market does not move anyone's files; the operator decided that.
+        // TAK Product Center fixed it in 5.8.0.5 (ATAK-21131), confirmed
+        // 2026-10-06 on official 5.8.0.5 with a cataloged package and two
+        // restarts, so only 5.8.0.x below 5.8.0.5 is refused, the rule Map
+        // Depot 1.11 shipped. Every ATAK this market installs is official (the
+        // download is refused otherwise), so the version alone decides. The
+        // live catalog offers 5.8.0.5; this stays for an older one that still
+        // lists 5.8.0.4.
+        String number = PluginVersion.number(atak.version);
+        int packages = AtakTarget.isVtpkBlockedBuild(number) ? countVectorTilePackages() : 0;
         if (packages > 0) {
-            String why = "ATAK " + PluginVersion.number(atak.version) + " update not available"
-                    + " on this phone: " + packages + " vector tile package"
-                    + (packages == 1 ? "" : "s") + " in atak/imagery (Map Depot's public-lands"
-                    + " maps). ATAK 5.8.0.4 does not start with them. Waiting on a fix from"
-                    + " tak.gov.\n\nTo update anyway, remove the vector tile packages from the"
-                    + " phone first (Map Depot's Offline Public Lands list can delete them),"
-                    + " then tap Update again.";
+            String fixed = AtakTarget.vtpkFixedVersion();
+            String why = "ATAK " + number + " update not available on this phone: "
+                    + packages + " vector tile package" + (packages == 1 ? "" : "s")
+                    + " in atak/imagery (Map Depot's public-lands maps). ATAK " + number
+                    + " does not start with them. ATAK " + fixed + " fixed that: tap"
+                    + " Update again and choose " + fixed + " or newer. If it is not"
+                    + " in the list, tap Refresh first.\n\nTo take " + number
+                    + " anyway, remove the vector tile packages from the phone first"
+                    + " (Map Depot's Offline Public Lands list can delete them).";
             new AlertDialog.Builder(hostContext)
-                    .setTitle("Not yet")
+                    .setTitle("Choose " + fixed + " or newer")
                     .setMessage(why)
                     .setPositiveButton("OK", null)
                     .show();

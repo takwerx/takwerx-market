@@ -3,7 +3,7 @@
 
 #show: userguide.with(
    plugin-name: "TAKwerx Market",
-   plugin-version: "1.7",
+   plugin-version: "1.8",
    platform: "ATAK",
    platform-version: "5.8.0",
 )
@@ -124,7 +124,7 @@ Three things happen in a row, and all three are normal.
 - *Android's "App installed" screen.* Tap *Done*.
 - *A toast saying the plugin was uninstalled.* During an update ATAK notices the
   old copy being replaced and says so. Nothing has gone wrong; the market row
-  underneath says *Installing…* for exactly that reason.
+  underneath says *Installing\...* for exactly that reason.
 - *ATAK asks "Load plugin?"* This is the same question it asks after any
   install, from any source. Say *OK* and the row turns green with *LOADED*.
 
@@ -195,7 +195,7 @@ is restarted, so the new market is on the phone but not yet the one running.
   not obvious what to do about that from ATAK's own package manager.
 
   Get the 5.8 market from the same place you got this one and open it. Each of
-  those plugins shows up amber as *built for 5.7.0.CIV → 5.8.0.CIV* with an
+  those plugins shows up amber as *built for 5.7.0.CIV -> 5.8.0.CIV* with an
   *Update* button, and the count on the toolbar icon includes them. One tap
   each, the same three screens as any update, and you are moved over.
 
@@ -251,7 +251,7 @@ is restarted, so the new market is on the phone but not yet the one running.
   #image("21-all-on-58.png", width: 92%)
 ][
   ATAK is back on the new version and the market loaded with it. Its list
-  shows every plugin you had as *built for 5.7.0.CIV → 5.8.0.CIV*, the toolbar
+  shows every plugin you had as *built for 5.7.0.CIV -> 5.8.0.CIV*, the toolbar
   count says how many, and *Update all* runs them one after another: Android's
   confirm, Done, and "Load plugin?" for each. Four plugins took a quarter of a
   minute on the phone this was written on.
@@ -264,10 +264,11 @@ is restarted, so the new market is on the phone but not yet the one running.
   == Vector tile packages and ATAK 5.8
 
   ATAK 5.8.0.4 does not start with a vector tile package (Map Depot's
-  public-lands maps) on the phone. If you have any, the market will not offer
-  the 5.8 update, and says so. It comes back when tak.gov ships a fixed ATAK.
-  To update anyway, remove the packages from the phone first (Map Depot's
-  Offline Public Lands list can delete them), then tap Update again.
+  public-lands maps) on the phone. 5.8.0.5 fixed that, and it is the 5.8 the
+  market offers, so a phone with packages updates to it like any other. If
+  the market is ever offered an older 5.8 build on a phone with packages, it
+  refuses that one and says so: tap Refresh, then Update, and choose 5.8.0.5
+  or newer.
 ]
 ]
 
