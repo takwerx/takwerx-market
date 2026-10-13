@@ -48,6 +48,9 @@ own project. ATAK-CIV is the exception: the tak.gov release is copied to the
 catalog host byte for byte, its TAK Product Center signature intact, and the
 market pins that signature for ATAK's package before Android is asked.
 
+Every plugin the market offers, takwerx's and other developers', is listed with
+links at https://takwerx.github.io/takwerx-market/ (rebuilt from the live catalog).
+
 _________________________________________________________________
 STATUS
 
