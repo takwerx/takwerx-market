@@ -1,0 +1,53 @@
+{
+  "plugins": [
+    {
+      "repo": "RyanR3/TakVideoWall",
+      "description": "Watch several video feeds at once in one tiled wall.",
+      "glyph": "takvideowall.png",
+      "listed": "2026-09-06"
+    },
+    {
+      "repo": "RyanR3/SARTAK",
+      "description": "Search and rescue incidents, markers, photos and tracks, shared over TAK Server.",
+      "glyph": "sartak.png",
+      "listed": "2026-09-06"
+    },
+    {
+      "repo": "jpat-12/TAK-PluginSuite-ATAK_ICU",
+      "description": "Stream this phone's camera to the map as a live video feed.",
+      "glyph": "atak-icu.png",
+      "listed": "2026-09-06"
+    },
+    {
+      "repo": "Hellikandra/ATAK-Plugin-Hats",
+      "description": "Keep several ATAK profiles and switch between them.",
+      "glyph": "hats.png",
+      "listed": "2026-09-09"
+    },
+    {
+      "repo": "Hellikandra/ATAK-Plugin-MapFavorites",
+      "description": "Bookmark places on the map and jump back to them.",
+      "glyph": "mapfavorites.png",
+      "listed": "2026-09-09"
+    },
+    {
+      "repo": "Hellikandra/ATAK-Plugin-ERT",
+      "description": "Send units to an incident and see how long each one will take to get there.",
+      "glyph": "ert.png",
+      "listed": "2026-09-16"
+    },
+    {
+      "repo": "Hellikandra/ATAK-Plugin-KMLReplay",
+      "description": "Play a time-stamped KML track back on the map as it happened.",
+      "glyph": "kmlreplay.png",
+      "listed": "2026-09-16"
+    },
+    {
+      "repo": "cfd2474/TAK_Beacon",
+      "description": "Keeps reporting your position to your TAK server when ATAK is closed.",
+      "glyph": "takbeacon.png",
+      "listed": "2026-10-12",
+      "request": "https://github.com/takwerx/takwerx-market/issues/7"
+    }
+  ]
+}
