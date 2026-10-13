@@ -52,6 +52,8 @@ Plugins from other developers are listed too, from their own signed releases.
 To list yours, set up its repository as described in
 [docs/LIST_YOUR_PLUGIN.md](docs/LIST_YOUR_PLUGIN.md) and open a listing
 request: https://github.com/takwerx/takwerx-market/issues/new?template=list-my-plugin.yml
+Every plugin the market offers, takwerx's and other developers', is listed with
+links at https://takwerx.github.io/takwerx-market/ (rebuilt from the live catalog).
 
 _________________________________________________________________
 STATUS
