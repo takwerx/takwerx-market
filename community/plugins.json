@@ -48,6 +48,12 @@
       "glyph": "takbeacon.png",
       "listed": "2026-10-12",
       "request": "https://github.com/takwerx/takwerx-market/issues/7"
+    },
+    {
+      "repo": "RyanR3/TakNearbyDrop",
+      "description": "Send markers, data packages and files to nearby ATAK devices with no server.",
+      "glyph": "taknearbydrop.png",
+      "listed": "2026-10-28"
     }
   ]
 }
