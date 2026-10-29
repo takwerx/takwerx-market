@@ -283,7 +283,9 @@ Product Center: https://github.com/TAK-Product-Center/atak-civ/issues/14
 then **OK** on *Sync Packages*. ATAK scans what is installed and writes the file
 again. **Last Updated** at the top right resets to a few seconds, the count goes
 up, and **TAKwerx Market** appears at the bottom of the list as *Not loaded*.
-Tick it and choose **Load**.
+Tick it and choose **Load**. It does not matter what state the file is in: a
+sync that finishes replaces it completely, whether it is out of date, missing,
+damaged, or already edited by hand.
 
 ![TAK Package Mgmt after a sync: Last Updated 0s, and the TAKwerx Market row at the bottom, Not loaded](screenshots/25-package-mgmt-after-sync.png)
 
