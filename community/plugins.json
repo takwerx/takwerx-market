@@ -54,6 +54,12 @@
       "description": "Send markers, data packages and files to nearby ATAK devices with no server.",
       "glyph": "taknearbydrop.png",
       "listed": "2026-10-28"
+    },
+    {
+      "repo": "mighkel/ATAK-Plugin-KestrelWx",
+      "description": "Live readings from a Kestrel 5500FWL fire weather meter on the map, shared with your team.",
+      "glyph": "kestrelwx.png",
+      "listed": "2026-10-31"
     }
   ]
 }
