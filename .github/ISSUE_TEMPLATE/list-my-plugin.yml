@@ -1,0 +1,65 @@
+name: List my plugin in the Market
+description: Ask for your tak.gov-signed ATAK plugin to be listed in the TAKwerx Market.
+title: "List my plugin: "
+labels: ["listing request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before you submit, set your repository up as described in
+        [List your plugin in the TAKwerx Market](https://github.com/takwerx/takwerx-market/blob/main/docs/LIST_YOUR_PLUGIN.md).
+        We list a plugin once its newest release meets every rule there.
+  - type: input
+    id: repo
+    attributes:
+      label: Repository
+      description: The public GitHub repository whose Releases carry the plugin APKs.
+      placeholder: https://github.com/you/your-plugin
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: Plugin name
+      description: As it appears in ATAK.
+    validations:
+      required: true
+  - type: input
+    id: description
+    attributes:
+      label: One sentence for the Market list
+      description: What the plugin does, under about 100 characters, starting with a capital and ending with a full stop.
+      placeholder: Bookmark places on the map and jump back to them.
+    validations:
+      required: true
+  - type: checkboxes
+    id: targets
+    attributes:
+      label: ATAK-CIV versions in your newest release
+      options:
+        - label: "5.6"
+        - label: "5.7"
+        - label: "5.8"
+  - type: textarea
+    id: icon
+    attributes:
+      label: Icon
+      description: Drag the toolbar glyph PNG in here. White on transparent, square, ideally 256 × 256 with the glyph filling the square.
+    validations:
+      required: true
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Your repository
+      options:
+        - label: The APKs are attached to a published (not draft) GitHub Release, not committed as files.
+          required: true
+        - label: Every APK is the build tak.gov returned, signed by the TAK Product Center, unchanged.
+          required: true
+        - label: Each new version will be a new release with a higher version, and I won't replace an APK under an existing tag.
+          required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: Optional. For example, a companion app the plugin needs.

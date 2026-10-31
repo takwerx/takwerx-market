@@ -48,6 +48,10 @@ own project. ATAK-CIV is the exception: the tak.gov release is copied to the
 catalog host byte for byte, its TAK Product Center signature intact, and the
 market pins that signature for ATAK's package before Android is asked.
 
+Plugins from other developers are listed too, from their own signed releases.
+To list yours, set up its repository as described in
+[docs/LIST_YOUR_PLUGIN.md](docs/LIST_YOUR_PLUGIN.md) and open a listing
+request: https://github.com/takwerx/takwerx-market/issues/new?template=list-my-plugin.yml
 Every plugin the market offers, takwerx's and other developers', is listed with
 links at https://takwerx.github.io/takwerx-market/ (rebuilt from the live catalog).
 

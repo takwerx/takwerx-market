@@ -1,0 +1,78 @@
+name: Plugins page
+
+# Publishes the list of every plugin the Market offers to GitHub Pages, built
+# from the Market's live catalog and community/plugins.json
+# (.github/scripts/plugins_page.py). main is locked, so nothing is committed:
+# the page is deployed as a Pages artifact, and only when it changed.
+# A pull request builds the page and attaches it to the run without deploying.
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - community/**
+      - .github/scripts/plugins_page.py
+      - .github/workflows/plugins-page.yml
+  pull_request:
+    paths:
+      - community/**
+      - .github/scripts/plugins_page.py
+      - .github/workflows/plugins-page.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plugins-page-${{ github.event_name == 'pull_request' && github.ref || 'pages' }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      changed: ${{ steps.compare.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the page from the live catalog
+        run: python3 .github/scripts/plugins_page.py --out _site
+      - name: Compare with the published page
+        id: compare
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          live="$(curl -fsS "https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/fingerprint.txt" || true)"
+          if [ "$EVENT" != "schedule" ] || [ "$live" != "$(cat _site/fingerprint.txt)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Unchanged since the last deploy."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Attach the page to this run (pull request preview)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugins-page
+          path: _site
+      - name: Upload for Pages
+        if: github.event_name != 'pull_request' && steps.compare.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request' && needs.build.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
