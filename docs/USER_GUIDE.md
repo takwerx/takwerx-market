@@ -266,6 +266,48 @@ is exactly the thing worth being sure about.
 
 ---
 
+## The market is installed but not in ATAK's plugin list
+
+Android lists TAKwerx Market as installed, but ATAK's **Plugins** screen (TAK
+Package Mgmt) has no row for it, so there is no checkbox to load it and no icon
+in the toolbar. Other plugins you sideloaded may be missing from the list too.
+
+This is ATAK, not the market. ATAK builds that screen from a file it keeps,
+`atak/support/apks/sideloaded/product.inf`, and on a phone where that file is
+out of date or missing, a plugin installed while ATAK was not running never gets
+a row. Without a row ATAK never loads it, and the market cannot fix this itself,
+because it is the plugin that is not loaded. It has been reported to the TAK
+Product Center: https://github.com/TAK-Product-Center/atak-civ/issues/14
+
+**Fix: sync the list.** In **Plugins**, tap the blue circular arrows at the top,
+then **OK** on *Sync Packages*. ATAK scans what is installed and writes the file
+again. **Last Updated** at the top right resets to a few seconds, the count goes
+up, and **TAKwerx Market** appears at the bottom of the list as *Not loaded*.
+Tick it and choose **Load**. It does not matter what state the file is in: a
+sync that finishes replaces it completely, whether it is out of date, missing,
+damaged, or already edited by hand.
+
+![TAK Package Mgmt after a sync: Last Updated 0s, and the TAKwerx Market row at the bottom, Not loaded](screenshots/25-package-mgmt-after-sync.png)
+
+**If Last Updated does not change,** the sync did not finish and the file was
+not rewritten. Add the market's line to the end of the file yourself, with a
+file manager or with adb, then quit and reopen ATAK. The row appears, and you
+tick it as above:
+
+```
+Android,plugin,com.atakmap.android.takwerxmarket.plugin,TAKwerx Market,1.8,108005080,,,Install and update takwerx plugins,,21,com.atakmap.app@5.8.0.CIV,-1
+```
+
+```bash
+adb shell "echo 'Android,plugin,com.atakmap.android.takwerxmarket.plugin,TAKwerx Market,1.8,108005080,,,Install and update takwerx plugins,,21,com.atakmap.app@5.8.0.CIV,-1' >> /sdcard/atak/support/apks/sideloaded/product.inf"
+```
+
+On ATAK 5.6 or 5.7, change `5.8.0.CIV` to `5.6.0.CIV` or `5.7.0.CIV`. The next
+sync that does finish rewrites the line with the real details, so it does not
+need to be exact.
+
+---
+
 ## Getting help
 
 Every takwerx plugin has its own repository, with its downloads, its own guide
