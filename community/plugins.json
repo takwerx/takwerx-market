@@ -60,6 +60,13 @@
       "description": "Live readings from a Kestrel 5500FWL fire weather meter on the map, shared with your team.",
       "glyph": "kestrelwx.png",
       "listed": "2026-10-31"
+    },
+    {
+      "repo": "AM-Ripple2/map-compressor",
+      "description": "Shrink large drone orthomosaics into small, see-through map overlays.",
+      "glyph": "mapcompressor.png",
+      "listed": "2026-11-12",
+      "request": "https://github.com/takwerx/takwerx-market/issues/12"
     }
   ]
 }
